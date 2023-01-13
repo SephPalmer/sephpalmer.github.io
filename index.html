@@ -1,1 +1,59 @@
-Welcome to the website of Joe Palmer
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Self Parker</title>
+  <style>
+    /* Add CSS for elegant design */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #F5F5DC;
+    }
+    h1 {
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .bio {
+      text-align: center;
+      margin: 50px 0;
+    }
+    .quotes {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Self Parker</h1>
+    <div class="bio">
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed auctor, magna a bibendum mollis, augue quam blandit magna, eu tristique eros ipsum eu risus. Sed euismod risus id ipsum convallis, id congue ipsum elementum. Sed auctor, magna a bibendum mollis, augue quam blandit magna, eu tristique eros ipsum eu risus. Sed euismod risus id ipsum convallis, id congue ipsum elementum.</p>
+    </div>
+    <div class="quotes">
+      <p id="quote"></p>
+    </div>
+  </div>
+  <script>
+    // Add JavaScript for quote rotation
+    var quotes = [
+      "Creativity takes courage.",
+      "The creative adult is the child who survived.",
+      "You can't use up creativity. The more you use, the more you have.",
+      "Creativity is intelligence having fun."
+    ];
+    var quote = document.getElementById("quote");
+    var currentIndex = 0;
+
+    function changeQuote() {
+      quote.innerHTML = quotes[currentIndex];
+      currentIndex++;
+      if (currentIndex >= quotes.length) {
+        currentIndex = 0;
+      }
+    }
+    setInterval(changeQuote, 3000);
+  </script>
+</body>
+</html>
+
