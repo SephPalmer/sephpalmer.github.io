@@ -1,55 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Joe Palmer</title>
+  <title>Joe Palmer Emulator</title>
   <style>
-    /* Add CSS for elegant design */
+    /* Add CSS for terminal window styling */
     body {
-      font-family: Arial, sans-serif;
-      background-color: #F5F5DC;
+      background-color: #000;
+      color: orange;
+      font-family: monospace;
+      padding: 20px;
     }
-    h1 {
-      text-align: center;
+    /* Add CSS for flashing cursor */
+    .cursor {
+      animation: blink 1s infinite;
     }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .bio {
-      text-align: center;
-      margin: 50px 0;
-    }
-    .quotes {
-      text-align: center;
+    @keyframes blink {
+      0% {
+        opacity: 0;
+      }
+      49% {
+        opacity: 0;
+      }
+      50% {
+        opacity: 1;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Joe Palmer</h1>
-    <div class="bio">
-      <p>Joe Palmer is an artist and programmer. They have a passion for creating things that are both beautiful and functional. They have a vast portfolio that ranges from video games to mobile apps, and even a few failed experiments in turning a tin of baked beans into a cyborg.
-When they're not coding or painting, you can find them trying to make music with their pocket synth or attempting to build a fully functional TARDIS. They have a motto that goes 'Nothing is impossible unless proven to be so' (with a few exceptions, like world peace and good hair days)</p>
-    </div>
-    <div class="quotes">
-      <p id="quote"></p>
-    </div>
+  <div class="terminal">
+    <p>Last login: <script>document.write(new Date())</script></p>
+    <p>Welcome to the Joe Palmer emulator</p>
+    <p id="terminal-text"></p>
+    <p class="cursor" id="cursor"></p>
   </div>
   <script>
-    // Add JavaScript for quote rotation
-    var quotes = [      "Creativity is the key to success in the future, and primary education is where teachers can bring creativity in children at that level.",      "The greatest creations are born from the greatest struggles.",      "Creativity is the power to connect the seemingly unconnected.",      "You can't use up creativity. The more you use, the more you have.",      "The best way to have a good idea is to have lots of ideas.",      "The greatest enemy of creativity is self-doubt.",      "The more you know, the more you can create.",      "Creativity takes courage.",      "Creativity is the ability to introduce order into the randomness of nature.",      "Creativity is a natural extension of our enthusiasm.",      "The creative adult is the child who survived.",      "Creativity is intelligence having fun.",      "Creativity is a human quality that is as vital to our survival as the air we breathe.",      "Creativity is the way I share my soul with the world.",      "Creativity is the process of having original ideas that have value.",      "Creativity is not a talent, it's a way of operating.",      "Creativity is the ability to see the world in a new way and then make something out of that vision.",      "Creativity is not a single gift, but a multitude of talents, each of which must be nurtured and developed.",      "Creativity is the greatest rebellion in existence.",      "Creativity is just connecting things. When you ask creative people how they did something, they feel a little guilty because they didn't really do it, they just saw something. It seemed obvious to them after a while."    ];
+    // Add JavaScript for simulating terminal commands
+    var terminalText = document.getElementById("terminal-text");
+    var cursor = document.getElementById("cursor");
+    var commands = ["ls", "cd Documents", "ls -al"];
+    var index = 0;
+    var input = "";
+    var responses = [
+      "I'm sorry, I am not able to process that command.",
+      "I don't understand what you're trying to do.",
+      "That command is not supported by this emulator.",
+      "Invalid input, please try again."
+    ];
 
-    var quote = document.getElementById("quote");
-    var currentIndex = 0;
-
-    function changeQuote() {
-      quote.innerHTML = quotes[currentIndex];
-      currentIndex++;
-      if (currentIndex >= quotes.length) {
-        currentIndex = 0;
+    function typeCommand(callback) {
+      if (index < commands.length) {
+        terminalText.innerHTML += commands[index] + "\n";
+        index++;
+        setTimeout(typeCommand, 2000, callback);
+      } else {
+        callback();
       }
     }
-    setInterval(changeQuote, 3000);
+    function handleInput() {
+      cursor.innerHTML = ">";
+      document.onkeyup = function(e) {
+        input += e.key;
+        cursor.innerHTML = ">" + input;
+        if (input.length > 2) {
+          var randomResponse = responses[Math.floor(Math.random() * responses.length)];
+          terminalText.innerHTML += randomResponse + "\n";
+          input = "";
+          cursor.innerHTML = ">";
+        }
+      }
+    }
+    typeCommand(handleInput);
   </script>
 </body>
 </html>
