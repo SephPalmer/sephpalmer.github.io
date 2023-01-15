@@ -86,25 +86,36 @@
       }
     }
 
-    function handleInput() {
-      var cursor = document.createElement("p");
-      cursor.classList.add("cursor");
-      cursor.textContent = ">";
-      terminal.appendChild(cursor);
+      function handleInput() {
+        var cursor = document.createElement("p");
+        cursor.classList.add("cursor");
+        cursor.textContent = ">";
+        terminal.appendChild(cursor);
 
-      document.onkeyup = function(e) {
-        input += e.key;
-        cursor.textContent = ">" + input;
-        if (input.length > 5) {
-          var randomResponse = responses[Math.floor(Math.random() * responses.length)];
-          var p = document.createElement("p");
-          p.textContent = randomResponse;
-          terminal.appendChild(p);
-          input = "";
-          cursor.textContent = ">";
+        document.onkeyup = function(e) {
+          input += e.key;
+          cursor.textContent = ">" + input;
+          if (input.length > 2) {
+            var randomResponse = responses[Math.floor(Math.random() * responses.length)];
+            var p = document.createElement("p");
+            terminal.appendChild(p);
+            typeResponse(randomResponse, p);
+            input = "";
+            cursor.textContent = ">";
+          }
         }
       }
-    }
+      function typeResponse(response, elem) {
+        var index = 0;
+        var interval = setInterval(function() {
+          elem.textContent += response[index];
+          index++;
+          if (index === response.length) {
+            clearInterval(interval);
+          }
+        }, 100);
+      }
+
     typeCommand(handleInput);
   </script>
 </body>
