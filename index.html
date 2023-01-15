@@ -31,13 +31,10 @@
   <div class="terminal">
     <p>Last login: <script>document.write(new Date())</script></p>
     <p>Welcome to the Joe Palmer emulator</p>
-    <p id="terminal-text"></p>
-    <p class="cursor" id="cursor"></p>
   </div>
   <script>
     // Add JavaScript for simulating terminal commands
-    var terminalText = document.getElementById("terminal-text");
-    var cursor = document.getElementById("cursor");
+    var terminal = document.querySelector(".terminal");
     var commands = ["ls", "cd Documents", "ls -al"];
     var index = 0;
     var input = "";
@@ -50,23 +47,32 @@
 
     function typeCommand(callback) {
       if (index < commands.length) {
-        terminalText.innerHTML += commands[index] + "\n";
+        var p = document.createElement("p");
+        p.textContent = commands[index];
+        terminal.appendChild(p);
         index++;
         setTimeout(typeCommand, 2000, callback);
       } else {
         callback();
       }
     }
+
     function handleInput() {
-      cursor.innerHTML = ">";
+      var cursor = document.createElement("p");
+      cursor.classList.add("cursor");
+      cursor.textContent = ">";
+      terminal.appendChild(cursor);
+
       document.onkeyup = function(e) {
         input += e.key;
-        cursor.innerHTML = ">" + input;
+        cursor.textContent = ">" + input;
         if (input.length > 2) {
           var randomResponse = responses[Math.floor(Math.random() * responses.length)];
-          terminalText.innerHTML += randomResponse + "\n";
+          var p = document.createElement("p");
+          p.textContent = randomResponse;
+          terminal.appendChild(p);
           input = "";
-          cursor.innerHTML = ">";
+          cursor.textContent = ">";
         }
       }
     }
