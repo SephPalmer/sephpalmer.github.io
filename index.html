@@ -95,7 +95,7 @@
       document.onkeyup = function(e) {
         input += e.key;
         cursor.textContent = ">" + input;
-        if (input.length > 2) {
+        if (input.length > 5) {
           var randomResponse = responses[Math.floor(Math.random() * responses.length)];
           var p = document.createElement("p");
           p.textContent = randomResponse;
