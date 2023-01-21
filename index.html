@@ -112,7 +112,10 @@
         inputField.focus();
         document.onkeyup = function(e) {
           input += e.key;
-          cursor.textContent = ">" + input;
+          cursor.textContent = "> " + input;
+          setTimeout(function(){
+              inputField.focus();
+            },1000);
           if (input.length > 2) {
             var randomResponse = responses[Math.floor(Math.random() * responses.length)];
             var p = document.createElement("p");
