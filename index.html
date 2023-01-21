@@ -99,7 +99,15 @@
         cursor.classList.add("cursor");
         cursor.textContent = ">";
         terminal.appendChild(cursor);
-
+        var inputField = document.createElement('input');
+        inputField.type = "text";
+        inputField.classList.add("input-field");
+        inputField.id = "input-field";
+        inputField.style.display = "block";
+        inputField.style.backgroundColor = "black";
+        inputField.style.color = "orange";
+        terminal.appendChild(inputField);
+        inputField.focus();
         document.onkeyup = function(e) {
           input += e.key;
           cursor.textContent = ">" + input;
@@ -110,9 +118,11 @@
             typeResponse(randomResponse, p);
             input = "";
             cursor.textContent = ">";
+            inputField.style.display = "none";
           }
         }
       }
+
       function typeResponse(response, elem) {
         var index = 0;
         var interval = setInterval(function() {
