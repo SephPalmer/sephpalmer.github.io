@@ -81,7 +81,6 @@
       "I'm sorry, I'm not sure what you want from me.",
     ];
 
-
     function typeCommand(callback) {
       if (index < commands.length) {
         var p = document.createElement("p");
@@ -99,27 +98,6 @@
         cursor.classList.add("cursor");
         cursor.textContent = ">";
         terminal.appendChild(cursor);
-        var inputField = document.createElement('input');
-        inputField.type = "text";
-        inputField.classList.add("input-field");
-        inputField.id = "input-field";
-        inputField.style.display = "block";
-        inputField.style.backgroundColor = "black";
-        inputField.style.color = "orange";
-        inputField.style.borderWidth = "0";
-        inputField.style.borderColor = "transparent";
-        inputField.addEventListener("blur", function() {
-          // Display a button to open the keyboard
-          var openKeyboardButton = document.createElement("button");
-          openKeyboardButton.textContent = "Open Keyboard";
-          terminal.appendChild(openKeyboardButton);
-          openKeyboardButton.addEventListener("click", function() {
-            inputField.focus();
-            openKeyboardButton.remove();
-          });
-        });
-        terminal.appendChild(inputField);
-        inputField.focus();
         document.onkeyup = function(e) {
           input += e.key;
           cursor.textContent = "> " + input;
@@ -130,9 +108,8 @@
             typeResponse(randomResponse, p);
             input = "";
             cursor.textContent = ">";
-            inputField.style.display = "none";
           }
-        }
+        };
       }
 
       function typeResponse(response, elem) {
