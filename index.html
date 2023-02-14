@@ -40,7 +40,7 @@
     <p>Last login: <script>document.write(new Date())</script></p>
     <p>Welcome to the Joe Palmer emulator</p>
   </div>
-  <div onclick='$("#foo").focus();'>_</div>
+  <div onclick='$("#foo").focus();'>____________</div>
   <script>
     // Add JavaScript for simulating terminal commands
     var terminal = document.querySelector(".terminal");
@@ -98,6 +98,7 @@
         var cursor = document.createElement("p");
         cursor.classList.add("cursor");
         cursor.textContent = ">";
+        prompt()
         terminal.appendChild(cursor);
         document.onkeyup = function(e) {
           input += e.key;
