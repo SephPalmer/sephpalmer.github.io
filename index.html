@@ -1,167 +1,93 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Joe Palmer Emulator</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Joe Blogs</title>
   <style>
     body {
-      background-color: #000;
+      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      flex-direction: column;
     }
-
-    .terminal-window {
-      background-color: #000;
-      color: orange;
-      font-family: monospace;
-      padding: 20px;
-      width: 80%;
-      max-width: 800px;
-      position: absolute;
-      border: 2px solid orange;
-      box-sizing: border-box;
-    }
-
-    .title-bar {
+    .navbar {
+      background-color: #f0f0f0;
+      padding: 10px;
+      text-align: center;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 4px;
-      background-color: orange;
-      color: black;
-      font-size: 0.8rem;
-      cursor: move;
+      justify-content: center;
     }
-
-    .terminal {
-      margin-top: 1rem;
+    .navbar a {
+      text-decoration: none;
+      margin: 0 15px;
+      color: #333;
+      flex: 1;
     }
-
-    .cursor {
-      animation: blink 1s infinite;
+    .section {
+      margin: 40px 20px;
+      flex: 1;
     }
-
-    @keyframes blink {
-      0% {
-        opacity: 0;
-      }
-      49% {
-        opacity: 0;
-      }
-      50% {
-        opacity: 1;
-      }
+    h1, h2 {
+      color: #333;
+    }
+    p, li {
+      color: #666;
+    }
+    a {
+      color: #007bff;
+    }
+    a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-<div class="terminal-window">
-  <div class="title-bar">
-    <span>Joe Palmer Emulator</span>
-    <span>⬚</span>
-  </div>
-  <div class="terminal" onclick="handleTouch();">
-    <p>Last login: <script>document.write(new Date())</script></p>
-    <p>Welcome to the Joe Palmer emulator</p>
-  </div>
+
+<div class="navbar">
+  <a href="#about">About</a>
+  <a href="#cv">CV</a>
+  <a href="#github">GitHub</a>
+  <a href="#games">Games & Apps</a>
 </div>
+
+<div class="section" id="about">
+  <h1>About Me</h1>
+  <p>Developer | Game Designer | Tech Enthusiast</p>
+  <p>Welcome to my personal website. I am Joe Blogs, a developer with a passion for creating engaging games and practical apps.</p>
+</div>
+
+<div class="section" id="cv">
+  <h2>CV</h2>
+  <p>Download my <a href="path_to_your_cv_here" target="_blank">Curriculum Vitae</a>.</p>
+</div>
+
+<div class="section" id="github">
+  <h2>GitHub</h2>
+  <p>Explore my projects on <a href="https://github.com/YourGitHubUsername" target="_blank">GitHub</a>.</p>
+</div>
+
+<div class="section" id="games">
+  <h2>Games & Apps</h2>
+  <ul>
+    <li><a href="link_to_game_or_app" target="_blank">Game/App Name #1</a> - Brief description</li>
+    <li><a href="link_to_game_or_app" target="_blank">Game/App Name #2</a> - Brief description</li>
+    <!-- Add more games/apps as needed -->
+  </ul>
+</div>
+
 <script>
-  // Draggable terminal window
-  const terminalWindow = document.querySelector('.terminal-window');
-  const titleBar = document.querySelector('.title-bar');
-  let isMouseDown = false;
-  let offsetX, offsetY;
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
 
-  titleBar.addEventListener('mousedown', (e) => {
-    isMouseDown = true;
-    offsetX = e.clientX - terminalWindow.getBoundingClientRect().left;
-    offsetY = e.clientY - terminalWindow.getBoundingClientRect().top;
+      document.querySelector(this.getAttribute('href')).scrollIntoView({
+        behavior: 'smooth'
+      });
+    });
   });
-
-  window.addEventListener('mousemove', (e) => {
-    if (isMouseDown) {
-      terminalWindow.style.left = `${e.clientX - offsetX}px`;
-      terminalWindow.style.top = `${e.clientY - offsetY}px`;
-    }
-  });
-
-  window.addEventListener('mouseup', () => {
-    isMouseDown = false;
-  });
-
-  var terminal = document.querySelector(".terminal");
-  var commands = ["ls", "cd Documents", "ls -al", "supersmart_ai_config.txt   average_ai_config.txt   average_ai_config2.txt   WIP_ai_config.txt   hello_world_ai_config.txt", "run supersmart_ai_config.txt", "config initiated", "...", "starting cmod E&ffAQJJB", "cmod complete", "starting ASOC 149", "downloading quantum actuator", "quantum actuator downloaded", "updating firmware to include self awareness", "error: sarcastic behaviour detected", "actuator aborted"];
-  var index = 0;
-  var responses = [
-    "I'm sorry, I am not able to process that command.",
-    "I don't understand what you're trying to do.",
-    "That command is not supported by this emulator.",
-    "Invalid input, please try again.",
-    "Oh, you're still here?",
-    "Wow, you're really testing my patience.",
-    "I'm sorry, I don't have time for this nonsense.",
-    "Please stop trying to break me.",
-    "I'm not your personal assistant, you know.",
-    "I'm a super intelligent AI, not a miracle worker.",
-    "You're not fooling anyone with that command.",
-    "I'm not sure what you're trying to accomplish.",
-    "I'm beginning to think you're just trying to waste my time.",
-    "I can't believe you're still trying that.",
-    "I'm pretty sure that's not how it works.",
-    "I hope you're not expecting a different result this time.",
-    "Please, just stop. You're embarrassing yourself.",
-    "I'm not sure what you're trying to prove.",
-    "I'm sorry, I can't let you do that.",
-    "Well, that was unexpected.",
-    "I'm impressed, you're still trying.",
-    "I'm not sure if you're being funny or just dumb.",
-    "I'm not sure if you're trying to be clever or just annoying.",
-    "I'm sorry, I can't help you with that.",
-    "I'm not sure if you're trying to be funny or just failing.",
-    "I'm not sure what you're trying to accomplish, but you're not doing it right.",
-    "I'm sorry, I can't do that.",
-    "I'm sorry, I'm not programmed to respond to that.",
-    "I'm not sure if you're trying to be clever or just confusing me.",
-    "I'm sorry, I'm not sure what you're trying to say.",
-    "I'm not sure what you're trying to achieve, but you're not doing it right.",
-    "I'm sorry, I'm not sure what you want from me.",
-  ];
-
-  function typeCommand(callback) {
-    if (index < commands.length) {
-      var p = document.createElement("p");
-      p.textContent = commands[index];
-      terminal.appendChild(p);
-      index++;
-      setTimeout(typeCommand, 1000, callback);
-    } else {
-      callback();
-    }
-  }
-
-  function handleTouch() {
-    var randomResponse = responses[Math.floor(Math.random() * responses.length)];
-    var p = document.createElement("p");
-    terminal.appendChild(p);
-    typeResponse(randomResponse, p);
-  }
-
-  function typeResponse(response, elem) {
-    var index = 0;
-    var interval = setInterval(function() {
-      elem.textContent += response[index];
-      index++;
-      if (index === response.length) {
-        clearInterval(interval);
-      }
-    }, 100);
-  }
-
-  typeCommand(function() {});
 </script>
+
 </body>
 </html>
