@@ -128,6 +128,14 @@
             return isValidRookMove(startRow, startCol, endRow, endCol, board) ||
                    isValidBishopMove(startRow, startCol, endRow, endCol, board);
         };
+        
+        const isValidKingMove = (startRow, startCol, endRow, endCol) => {
+            const rowDiff = Math.abs(endRow - startRow);
+            const colDiff = Math.abs(endCol - startCol);
+            
+            // King can move one square in any direction
+            return (rowDiff <= 1 && colDiff <= 1) && (rowDiff + colDiff > 0);
+        };
 
         const getLegalMoves = (piece, row, col, board) => {
             const legalMoves = [];
@@ -165,7 +173,10 @@
                         case '♛':
                             isLegalMove = isValidQueenMove(row, col, i, j, board);
                             break;
-                        // We'll add the king's move later
+                        case '♔':
+                        case '♚':
+                            isLegalMove = isValidKingMove(row, col, i, j);
+                            break;
                     }
 
                     if (isLegalMove) {
