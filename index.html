@@ -123,6 +123,8 @@
             const [board, setBoard] = React.useState(INITIAL_BOARD);
             const [selectedPiece, setSelectedPiece] = React.useState(null);
             const [legalMoves, setLegalMoves] = React.useState([]);
+            const [currentPlayer, setCurrentPlayer] = React.useState('white');
+            const [status, setStatus] = React.useState("White's turn to move");
 
             const handleSquareClick = (row, col) => {
                 if (selectedPiece) {
@@ -134,37 +136,54 @@
                         newBoard[startRow][startCol] = '';
                         newBoard[row][col] = piece;
                         setBoard(newBoard);
+                        setCurrentPlayer(currentPlayer === 'white' ? 'black' : 'white');
+                        setStatus(`${currentPlayer === 'white' ? "Black" : "White"}'s turn to move`);
                     }
 
                     setSelectedPiece(null);
                     setLegalMoves([]);
                 } else if (board[row][col]) {
-                    setSelectedPiece({ piece: board[row][col], row, col });
-                    setLegalMoves(getLegalMoves(board[row][col], row, col, board));
+                    const piece = board[row][col];
+                    const isCurrentPlayerPiece =
+                        (currentPlayer === 'white' && isWhitePiece(piece)) ||
+                        (currentPlayer === 'black' && isBlackPiece(piece));
+
+                    if (isCurrentPlayerPiece) {
+                        setSelectedPiece({ piece, row, col });
+                        setLegalMoves(getLegalMoves(piece, row, col, board));
+                    } else {
+                        setStatus(`It's ${currentPlayer}'s turn. Please select a ${currentPlayer} piece.`);
+                    }
                 }
             };
 
             return (
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(8, 50px)',
-                    gridTemplateRows: 'repeat(8, 50px)',
-                    width: '400px',
-                    height: '400px',
-                    border: '4px solid #333'
-                }}>
-                    {board.map((row, rowIndex) =>
-                        row.map((piece, colIndex) => (
-                            <ChessSquare
-                                key={`${rowIndex}-${colIndex}`}
-                                piece={piece}
-                                isLight={(rowIndex + colIndex) % 2 === 0}
-                                isSelected={selectedPiece && selectedPiece.row === rowIndex && selectedPiece.col === colIndex}
-                                isLegalMove={legalMoves.some(move => move[0] === rowIndex && move[1] === colIndex)}
-                                onClick={() => handleSquareClick(rowIndex, colIndex)}
-                            />
-                        ))
-                    )}
+                <div>
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(8, 50px)',
+                        gridTemplateRows: 'repeat(8, 50px)',
+                        width: '400px',
+                        height: '400px',
+                        border: '4px solid #333',
+                        margin: '20px auto'
+                    }}>
+                        {board.map((row, rowIndex) =>
+                            row.map((piece, colIndex) => (
+                                <ChessSquare
+                                    key={`${rowIndex}-${colIndex}`}
+                                    piece={piece}
+                                    isLight={(rowIndex + colIndex) % 2 === 0}
+                                    isSelected={selectedPiece && selectedPiece.row === rowIndex && selectedPiece.col === colIndex}
+                                    isLegalMove={legalMoves.some(move => move[0] === rowIndex && move[1] === colIndex)}
+                                    onClick={() => handleSquareClick(rowIndex, colIndex)}
+                                />
+                            ))
+                        )}
+                    </div>
+                    <div style={{ textAlign: 'center', marginTop: '10px', fontSize: '18px' }}>
+                        {status}
+                    </div>
                 </div>
             );
         };
