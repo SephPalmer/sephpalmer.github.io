@@ -129,12 +129,62 @@
                    isValidBishopMove(startRow, startCol, endRow, endCol, board);
         };
         
-        const isValidKingMove = (startRow, startCol, endRow, endCol) => {
+        const isSquareUnderAttack = (row, col, board, attackingColor) => {
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 8; j++) {
+                    const piece = board[i][j];
+                    if (piece && (attackingColor === 'white' ? isWhitePiece(piece) : isBlackPiece(piece))) {
+                        let isAttacking = false;
+                        switch(piece) {
+                            case '♙':
+                            case '♟':
+                                // Pawns attack diagonally forward
+                                const direction = attackingColor === 'white' ? -1 : 1;
+                                isAttacking = (Math.abs(j - col) === 1 && i + direction === row);
+                                break;
+                            case '♘':
+                            case '♞':
+                                isAttacking = isValidKnightMove(i, j, row, col);
+                                break;
+                            case '♗':
+                            case '♝':
+                                isAttacking = isValidBishopMove(i, j, row, col, board);
+                                break;
+                            case '♖':
+                            case '♜':
+                                isAttacking = isValidRookMove(i, j, row, col, board);
+                                break;
+                            case '♕':
+                            case '♛':
+                                isAttacking = isValidQueenMove(i, j, row, col, board);
+                                break;
+                            case '♔':
+                            case '♚':
+                                // King can attack adjacent squares
+                                isAttacking = isValidKingMove(i, j, row, col);
+                                break;
+                        }
+                        if (isAttacking) return true;
+                    }
+                }
+            }
+            return false;
+        };
+
+        // The rest of the component remains the same
+
+        const isValidKingMove = (startRow, startCol, endRow, endCol, board, kingColor) => {
             const rowDiff = Math.abs(endRow - startRow);
             const colDiff = Math.abs(endCol - startCol);
             
             // King can move one square in any direction
-            return (rowDiff <= 1 && colDiff <= 1) && (rowDiff + colDiff > 0);
+            const isBasicMoveValid = (rowDiff <= 1 && colDiff <= 1) && (rowDiff + colDiff > 0);
+
+            if (!isBasicMoveValid) return false;
+
+            // Check if the destination square is under attack
+            const oppositeColor = kingColor === 'white' ? 'black' : 'white';
+            return !isSquareUnderAttack(endRow, endCol, board, oppositeColor);
         };
 
         const getLegalMoves = (piece, row, col, board) => {
@@ -175,7 +225,7 @@
                             break;
                         case '♔':
                         case '♚':
-                            isLegalMove = isValidKingMove(row, col, i, j);
+                            isLegalMove = isValidKingMove(row, col, i, j, board, isWhite ? 'white' : 'black');
                             break;
                     }
 
@@ -186,6 +236,8 @@
             }
             return legalMoves;
         };
+
+        // ... (rest of the Chessboard component remains the same)
         
         const ChessSquare = ({ piece, isLight, isSelected, isLegalMove, onClick }) => (
             <div
