@@ -122,6 +122,12 @@
 
             return true;
         };
+        
+        const isValidQueenMove = (startRow, startCol, endRow, endCol, board) => {
+            // Queen moves are valid if they're either valid rook moves or valid bishop moves
+            return isValidRookMove(startRow, startCol, endRow, endCol, board) ||
+                   isValidBishopMove(startRow, startCol, endRow, endCol, board);
+        };
 
         const getLegalMoves = (piece, row, col, board) => {
             const legalMoves = [];
@@ -138,16 +144,29 @@
 
                     let isLegalMove = false;
 
-                    if (piece === '♙' || piece === '♟') {
-                        isLegalMove = isValidPawnMove(row, col, i, j, piece, board);
-                    } else if (piece === '♘' || piece === '♞') {
-                        isLegalMove = isValidKnightMove(row, col, i, j);
-                    } else if (piece === '♗' || piece === '♝') {
-                        isLegalMove = isValidBishopMove(row, col, i, j, board);
-                    } else if (piece === '♖' || piece === '♜') {
-                        isLegalMove = isValidRookMove(row, col, i, j, board);
+                    switch(piece) {
+                        case '♙':
+                        case '♟':
+                            isLegalMove = isValidPawnMove(row, col, i, j, piece, board);
+                            break;
+                        case '♘':
+                        case '♞':
+                            isLegalMove = isValidKnightMove(row, col, i, j);
+                            break;
+                        case '♗':
+                        case '♝':
+                            isLegalMove = isValidBishopMove(row, col, i, j, board);
+                            break;
+                        case '♖':
+                        case '♜':
+                            isLegalMove = isValidRookMove(row, col, i, j, board);
+                            break;
+                        case '♕':
+                        case '♛':
+                            isLegalMove = isValidQueenMove(row, col, i, j, board);
+                            break;
+                        // We'll add the king's move later
                     }
-                    // Add logic for other pieces here
 
                     if (isLegalMove) {
                         legalMoves.push([i, j]);
