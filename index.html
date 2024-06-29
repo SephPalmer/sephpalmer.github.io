@@ -186,6 +186,35 @@
             const oppositeColor = kingColor === 'white' ? 'black' : 'white';
             return !isSquareUnderAttack(endRow, endCol, board, oppositeColor);
         };
+        
+        const getAllLegalMoves = (board, color) => {
+            const moves = [];
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const piece = board[row][col];
+                    if ((color === 'white' && isWhitePiece(piece)) || (color === 'black' && isBlackPiece(piece))) {
+                        const pieceMoves = getLegalMoves(piece, row, col, board);
+                        pieceMoves.forEach(move => moves.push({from: [row, col], to: move}));
+                    }
+                }
+            }
+            return moves;
+        };
+        
+        const makeAIMove = (board) => {
+            const legalMoves = getAllLegalMoves(board, 'black');
+            if (legalMoves.length === 0) return board; // No legal moves, game over
+
+            const randomMove = legalMoves[Math.floor(Math.random() * legalMoves.length)];
+            const newBoard = board.map(row => [...row]);
+            const [fromRow, fromCol] = randomMove.from;
+            const [toRow, toCol] = randomMove.to;
+
+            newBoard[toRow][toCol] = newBoard[fromRow][fromCol];
+            newBoard[fromRow][fromCol] = '';
+
+            return newBoard;
+        };
 
         const getLegalMoves = (piece, row, col, board) => {
             const legalMoves = [];
@@ -264,7 +293,38 @@
             const [currentPlayer, setCurrentPlayer] = React.useState('white');
             const [status, setStatus] = React.useState("White's turn to move");
 
+            const makeAIMove = React.useCallback(() => {
+                const legalMoves = getAllLegalMoves(board, 'black');
+                if (legalMoves.length === 0) {
+                    setStatus("Game over - No legal moves for Black");
+                    return;
+                }
+
+                const randomMove = legalMoves[Math.floor(Math.random() * legalMoves.length)];
+                const newBoard = board.map(row => [...row]);
+                const [fromRow, fromCol] = randomMove.from;
+                const [toRow, toCol] = randomMove.to;
+
+                newBoard[toRow][toCol] = newBoard[fromRow][fromCol];
+                newBoard[fromRow][fromCol] = '';
+
+                setBoard(newBoard);
+                setCurrentPlayer('white');
+                setStatus("White's turn to move");
+            }, [board]);
+
+            React.useEffect(() => {
+                if (currentPlayer === 'black') {
+                    setStatus("Black's turn (AI is thinking...)");
+                    setTimeout(() => {
+                        makeAIMove();
+                    }, 500);
+                }
+            }, [currentPlayer, makeAIMove]);
+
             const handleSquareClick = (row, col) => {
+                if (currentPlayer !== 'white') return; // Prevent moves when it's not white's turn
+
                 if (selectedPiece) {
                     const { piece, row: startRow, col: startCol } = selectedPiece;
                     const isLegalMove = legalMoves.some(move => move[0] === row && move[1] === col);
@@ -273,24 +333,23 @@
                         const newBoard = board.map(r => [...r]);
                         newBoard[startRow][startCol] = '';
                         newBoard[row][col] = piece;
-                        setBoard(newBoard);
-                        setCurrentPlayer(currentPlayer === 'white' ? 'black' : 'white');
-                        setStatus(`${currentPlayer === 'white' ? "Black" : "White"}'s turn to move`);
-                    }
 
-                    setSelectedPiece(null);
-                    setLegalMoves([]);
+                        setBoard(newBoard);
+                        setSelectedPiece(null);
+                        setLegalMoves([]);
+                        setCurrentPlayer('black');
+                        setStatus("Black's turn (AI is thinking...)");
+                    } else {
+                        setSelectedPiece(null);
+                        setLegalMoves([]);
+                    }
                 } else if (board[row][col]) {
                     const piece = board[row][col];
-                    const isCurrentPlayerPiece =
-                        (currentPlayer === 'white' && isWhitePiece(piece)) ||
-                        (currentPlayer === 'black' && isBlackPiece(piece));
-
-                    if (isCurrentPlayerPiece) {
+                    if (isWhitePiece(piece)) {
                         setSelectedPiece({ piece, row, col });
                         setLegalMoves(getLegalMoves(piece, row, col, board));
                     } else {
-                        setStatus(`It's ${currentPlayer}'s turn. Please select a ${currentPlayer} piece.`);
+                        setStatus("It's White's turn. Please select a white piece.");
                     }
                 }
             };
