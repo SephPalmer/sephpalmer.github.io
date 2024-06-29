@@ -95,6 +95,33 @@
 
             return true;
         };
+        
+        
+
+        const isValidRookMove = (startRow, startCol, endRow, endCol, board) => {
+            // Check if the move is either horizontal or vertical
+            if (startRow !== endRow && startCol !== endCol) {
+                return false;
+            }
+
+            // Determine the direction of movement
+            const rowDirection = startRow === endRow ? 0 : (endRow > startRow ? 1 : -1);
+            const colDirection = startCol === endCol ? 0 : (endCol > startCol ? 1 : -1);
+
+            // Check if the path is clear
+            let currentRow = startRow + rowDirection;
+            let currentCol = startCol + colDirection;
+
+            while (currentRow !== endRow || currentCol !== endCol) {
+                if (board[currentRow][currentCol] !== '') {
+                    return false; // Path is blocked
+                }
+                currentRow += rowDirection;
+                currentCol += colDirection;
+            }
+
+            return true;
+        };
 
         const getLegalMoves = (piece, row, col, board) => {
             const legalMoves = [];
@@ -117,6 +144,8 @@
                         isLegalMove = isValidKnightMove(row, col, i, j);
                     } else if (piece === '♗' || piece === '♝') {
                         isLegalMove = isValidBishopMove(row, col, i, j, board);
+                    } else if (piece === '♖' || piece === '♜') {
+                        isLegalMove = isValidRookMove(row, col, i, j, board);
                     }
                     // Add logic for other pieces here
 
@@ -127,7 +156,7 @@
             }
             return legalMoves;
         };
-
+        
         const ChessSquare = ({ piece, isLight, isSelected, isLegalMove, onClick }) => (
             <div
                 onClick={onClick}
