@@ -71,6 +71,31 @@
             return (rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2);
         };
 
+        const isValidBishopMove = (startRow, startCol, endRow, endCol, board) => {
+            const rowDiff = Math.abs(endRow - startRow);
+            const colDiff = Math.abs(endCol - startCol);
+
+            // Check if the move is diagonal
+            if (rowDiff !== colDiff) {
+                return false;
+            }
+
+            // Determine the direction of movement
+            const rowDirection = endRow > startRow ? 1 : -1;
+            const colDirection = endCol > startCol ? 1 : -1;
+
+            // Check if the path is clear
+            for (let i = 1; i < rowDiff; i++) {
+                const row = startRow + i * rowDirection;
+                const col = startCol + i * colDirection;
+                if (board[row][col] !== '') {
+                    return false; // Path is blocked
+                }
+            }
+
+            return true;
+        };
+
         const getLegalMoves = (piece, row, col, board) => {
             const legalMoves = [];
             const isWhite = isWhitePiece(piece);
@@ -90,6 +115,8 @@
                         isLegalMove = isValidPawnMove(row, col, i, j, piece, board);
                     } else if (piece === '♘' || piece === '♞') {
                         isLegalMove = isValidKnightMove(row, col, i, j);
+                    } else if (piece === '♗' || piece === '♝') {
+                        isLegalMove = isValidBishopMove(row, col, i, j, board);
                     }
                     // Add logic for other pieces here
 
