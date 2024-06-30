@@ -194,7 +194,17 @@
                     const piece = board[row][col];
                     if ((color === 'white' && isWhitePiece(piece)) || (color === 'black' && isBlackPiece(piece))) {
                         const pieceMoves = getLegalMoves(piece, row, col, board);
-                        pieceMoves.forEach(move => moves.push({from: [row, col], to: move}));
+                        pieceMoves.forEach(move => {
+                            // Create a new board with the move applied
+                            const newBoard = board.map(r => [...r]);
+                            newBoard[move[0]][move[1]] = newBoard[row][col];
+                            newBoard[row][col] = '';
+                            
+                            // Only add the move if it doesn't leave the king in check
+                            if (!isInCheck(newBoard, color)) {
+                                moves.push({from: [row, col], to: move});
+                            }
+                        });
                     }
                 }
             }
@@ -289,9 +299,10 @@
         const isInCheck = (board, color) => {
             // Find the king
             let kingRow, kingCol;
+            const kingSymbol = color === 'white' ? '♔' : '♚';
             for (let i = 0; i < 8; i++) {
                 for (let j = 0; j < 8; j++) {
-                    if (board[i][j] === (color === 'white' ? '♔' : '♚')) {
+                    if (board[i][j] === kingSymbol) {
                         kingRow = i;
                         kingCol = j;
                         break;
@@ -301,7 +312,8 @@
             }
 
             // Check if the king is under attack
-            return isSquareUnderAttack(kingRow, kingCol, board, color === 'white' ? 'black' : 'white');
+            const oppositeColor = color === 'white' ? 'black' : 'white';
+            return isSquareUnderAttack(kingRow, kingCol, board, oppositeColor);
         };
 
         const isCheckmate = (board, color) => {
@@ -342,14 +354,17 @@
             const isAIMoving = React.useRef(false);
 
             const checkGameState = React.useCallback((board, player) => {
+                const oppositePlayer = player === 'white' ? 'black' : 'white';
                 if (isCheckmate(board, player)) {
-                    setStatus(`Checkmate! ${player === 'white' ? 'Black' : 'White'} wins!`);
+                    setStatus(`Checkmate! ${oppositePlayer.charAt(0).toUpperCase() + oppositePlayer.slice(1)} wins!`);
                     setGameOver(true);
                 } else if (isStalemate(board, player)) {
                     setStatus("Stalemate! The game is a draw.");
                     setGameOver(true);
                 } else if (isInCheck(board, player)) {
-                    setStatus(`${player === 'white' ? 'White' : 'Black'} is in check!`);
+                    setStatus(`${player.charAt(0).toUpperCase() + player.slice(1)} is in check!`);
+                } else {
+                    setStatus(`${player.charAt(0).toUpperCase() + player.slice(1)}'s turn to move`);
                 }
             }, []);
 
@@ -385,8 +400,7 @@
             }, [board, checkGameState, gameOver]);
 
             React.useEffect(() => {
-                if (currentPlayer === 'black' && !isAIMoving.current && !gameOver) {
-                    setStatus("Black's turn (AI is thinking...)");
+                if (currentPlayer === 'black' && !gameOver) {
                     const timeoutId = setTimeout(() => {
                         makeAIMove();
                     }, 500);
@@ -419,7 +433,12 @@
                     const piece = board[row][col];
                     if (isWhitePiece(piece)) {
                         setSelectedPiece({ piece, row, col });
-                        setLegalMoves(getLegalMoves(piece, row, col, board));
+                        setLegalMoves(getLegalMoves(piece, row, col, board).filter(move => {
+                            const newBoard = board.map(r => [...r]);
+                            newBoard[move[0]][move[1]] = newBoard[row][col];
+                            newBoard[row][col] = '';
+                            return !isInCheck(newBoard, 'white');
+                        }));
                     } else {
                         setStatus("It's White's turn. Please select a white piece.");
                     }
