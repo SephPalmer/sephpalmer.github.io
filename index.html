@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chess Game</title>
+    <title>Chess Game (TypeScript)</title>
     <script src="https://unpkg.com/react@17.0.2/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/typescript@4.7.4/lib/typescript.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,334 +27,316 @@
     </style>
 </head>
 <body>
-    <div id="root"></div>
+<div id="root"></div>
 
-    <script type="text/babel">
-        const INITIAL_BOARD = [
-            ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
-            ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
-            ...Array(4).fill(Array(8).fill('')),
-            ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
-            ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
-        ];
+<script type="text/typescript">
+    type Piece = '♜' | '♞' | '♝' | '♛' | '♚' | '♝' | '♞' | '♜' | '♟' | '♙' | '♖' | '♘' | '♗' | '♕' | '♔' | '' ;
+    type Board = Piece[][];
+    type Player = 'white' | 'black';
+    type Position = [number, number];
+    type Move = { from: Position; to: Position };
 
-        const isWhitePiece = (piece) => '♔♕♖♗♘♙'.includes(piece);
-        const isBlackPiece = (piece) => '♚♛♜♝♞♟'.includes(piece);
+    interface ChessSquareProps {
+        piece: Piece;
+        isLight: boolean;
+        isSelected: boolean;
+        isLegalMove: boolean;
+        onClick: () => void;
+    }
 
-        const isValidPawnMove = (startRow, startCol, endRow, endCol, piece, board) => {
-            const isWhitePawn = piece === '♙';
-            const direction = isWhitePawn ? -1 : 1;
-            const startingRow = isWhitePawn ? 6 : 1;
+    interface SelectedPiece {
+        piece: Piece;
+        row: number;
+        col: number;
+    }
 
-            // Move one square forward
-            if (startCol === endCol && endRow === startRow + direction && !board[endRow][endCol]) {
-                return true;
-            }
+    const INITIAL_BOARD: Board = [
+        ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
+        ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
+        ...Array(4).fill(Array(8).fill('')),
+        ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
+        ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
+    ];
 
-            // Move two squares forward from starting position
-            if (startCol === endCol && startRow === startingRow && endRow === startRow + 2 * direction
-                && !board[startRow + direction][startCol] && !board[endRow][endCol]) {
-                return true;
-            }
+    const isWhitePiece = (piece: Piece): boolean => '♔♕♖♗♘♙'.includes(piece);
+    const isBlackPiece = (piece: Piece): boolean => '♚♛♜♝♞♟'.includes(piece);
 
-            // Capture diagonally
-            if (Math.abs(startCol - endCol) === 1 && endRow === startRow + direction) {
-                const targetPiece = board[endRow][endCol];
-                return targetPiece && isWhitePawn !== isWhitePiece(targetPiece);
-            }
+    const isValidPawnMove = (startRow: number, startCol: number, endRow: number, endCol: number, piece: Piece, board: Board): boolean => {
+        const isWhitePawn = piece === '♙';
+        const direction = isWhitePawn ? -1 : 1;
+        const startingRow = isWhitePawn ? 6 : 1;
 
+        if (startCol === endCol && endRow === startRow + direction && !board[endRow][endCol]) {
+            return true;
+        }
+
+        if (startCol === endCol && startRow === startingRow && endRow === startRow + 2 * direction
+            && !board[startRow + direction][startCol] && !board[endRow][endCol]) {
+            return true;
+        }
+
+        if (Math.abs(startCol - endCol) === 1 && endRow === startRow + direction) {
+            const targetPiece = board[endRow][endCol];
+            return !!targetPiece && isWhitePawn !== isWhitePiece(targetPiece);
+        }
+
+        return false;
+    };
+
+    const isValidKnightMove = (startRow: number, startCol: number, endRow: number, endCol: number): boolean => {
+        const rowDiff = Math.abs(endRow - startRow);
+        const colDiff = Math.abs(endCol - startCol);
+        return (rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2);
+    };
+
+    const isValidBishopMove = (startRow: number, startCol: number, endRow: number, endCol: number, board: Board): boolean => {
+        const rowDiff = Math.abs(endRow - startRow);
+        const colDiff = Math.abs(endCol - startCol);
+
+        if (rowDiff !== colDiff) {
             return false;
-        };
+        }
 
-        const isValidKnightMove = (startRow, startCol, endRow, endCol) => {
-            const rowDiff = Math.abs(endRow - startRow);
-            const colDiff = Math.abs(endCol - startCol);
-            return (rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2);
-        };
+        const rowDirection = endRow > startRow ? 1 : -1;
+        const colDirection = endCol > startCol ? 1 : -1;
 
-        const isValidBishopMove = (startRow, startCol, endRow, endCol, board) => {
-            const rowDiff = Math.abs(endRow - startRow);
-            const colDiff = Math.abs(endCol - startCol);
-
-            // Check if the move is diagonal
-            if (rowDiff !== colDiff) {
+        for (let i = 1; i < rowDiff; i++) {
+            const row = startRow + i * rowDirection;
+            const col = startCol + i * colDirection;
+            if (board[row][col] !== '') {
                 return false;
             }
+        }
 
-            // Determine the direction of movement
-            const rowDirection = endRow > startRow ? 1 : -1;
-            const colDirection = endCol > startCol ? 1 : -1;
+        return true;
+    };
 
-            // Check if the path is clear
-            for (let i = 1; i < rowDiff; i++) {
-                const row = startRow + i * rowDirection;
-                const col = startCol + i * colDirection;
-                if (board[row][col] !== '') {
-                    return false; // Path is blocked
-                }
-            }
+    const isValidRookMove = (startRow: number, startCol: number, endRow: number, endCol: number, board: Board): boolean => {
+        if (startRow !== endRow && startCol !== endCol) {
+            return false;
+        }
 
-            return true;
-        };
-        
-        
+        const rowDirection = startRow === endRow ? 0 : (endRow > startRow ? 1 : -1);
+        const colDirection = startCol === endCol ? 0 : (endCol > startCol ? 1 : -1);
 
-        const isValidRookMove = (startRow, startCol, endRow, endCol, board) => {
-            // Check if the move is either horizontal or vertical
-            if (startRow !== endRow && startCol !== endCol) {
+        let currentRow = startRow + rowDirection;
+        let currentCol = startCol + colDirection;
+
+        while (currentRow !== endRow || currentCol !== endCol) {
+            if (board[currentRow][currentCol] !== '') {
                 return false;
             }
+            currentRow += rowDirection;
+            currentCol += colDirection;
+        }
 
-            // Determine the direction of movement
-            const rowDirection = startRow === endRow ? 0 : (endRow > startRow ? 1 : -1);
-            const colDirection = startCol === endCol ? 0 : (endCol > startCol ? 1 : -1);
+        return true;
+    };
 
-            // Check if the path is clear
-            let currentRow = startRow + rowDirection;
-            let currentCol = startCol + colDirection;
+    const isValidQueenMove = (startRow: number, startCol: number, endRow: number, endCol: number, board: Board): boolean => {
+        return isValidRookMove(startRow, startCol, endRow, endCol, board) ||
+               isValidBishopMove(startRow, startCol, endRow, endCol, board);
+    };
 
-            while (currentRow !== endRow || currentCol !== endCol) {
-                if (board[currentRow][currentCol] !== '') {
-                    return false; // Path is blocked
-                }
-                currentRow += rowDirection;
-                currentCol += colDirection;
-            }
-
-            return true;
-        };
-        
-        const isValidQueenMove = (startRow, startCol, endRow, endCol, board) => {
-            // Queen moves are valid if they're either valid rook moves or valid bishop moves
-            return isValidRookMove(startRow, startCol, endRow, endCol, board) ||
-                   isValidBishopMove(startRow, startCol, endRow, endCol, board);
-        };
-        
-        const isSquareUnderAttack = (row, col, board, attackingColor) => {
-            for (let i = 0; i < 8; i++) {
-                for (let j = 0; j < 8; j++) {
-                    const piece = board[i][j];
-                    if (piece && (attackingColor === 'white' ? isWhitePiece(piece) : isBlackPiece(piece))) {
-                        let isAttacking = false;
-                        switch(piece) {
-                            case '♙':
-                            case '♟':
-                                // Pawns attack diagonally forward
-                                const direction = attackingColor === 'white' ? -1 : 1;
-                                isAttacking = (Math.abs(j - col) === 1 && i + direction === row);
-                                break;
-                            case '♘':
-                            case '♞':
-                                isAttacking = isValidKnightMove(i, j, row, col);
-                                break;
-                            case '♗':
-                            case '♝':
-                                isAttacking = isValidBishopMove(i, j, row, col, board);
-                                break;
-                            case '♖':
-                            case '♜':
-                                isAttacking = isValidRookMove(i, j, row, col, board);
-                                break;
-                            case '♕':
-                            case '♛':
-                                isAttacking = isValidQueenMove(i, j, row, col, board);
-                                break;
-                            case '♔':
-                            case '♚':
-                                // King can attack adjacent squares
-                                isAttacking = isValidKingMove(i, j, row, col);
-                                break;
-                        }
-                        if (isAttacking) return true;
-                    }
-                }
-            }
-            return false;
-        };
-
-        // The rest of the component remains the same
-
-        const isValidKingMove = (startRow, startCol, endRow, endCol, board, kingColor) => {
-            const rowDiff = Math.abs(endRow - startRow);
-            const colDiff = Math.abs(endCol - startCol);
-            
-            // King can move one square in any direction
-            const isBasicMoveValid = (rowDiff <= 1 && colDiff <= 1) && (rowDiff + colDiff > 0);
-
-            if (!isBasicMoveValid) return false;
-
-            // Check if the destination square is under attack
-            const oppositeColor = kingColor === 'white' ? 'black' : 'white';
-            return !isSquareUnderAttack(endRow, endCol, board, oppositeColor);
-        };
-        
-        const getAllLegalMoves = (board, color) => {
-            const moves = [];
-            for (let row = 0; row < 8; row++) {
-                for (let col = 0; col < 8; col++) {
-                    const piece = board[row][col];
-                    if ((color === 'white' && isWhitePiece(piece)) || (color === 'black' && isBlackPiece(piece))) {
-                        const pieceMoves = getLegalMoves(piece, row, col, board);
-                        pieceMoves.forEach(move => {
-                            // Create a new board with the move applied
-                            const newBoard = board.map(r => [...r]);
-                            newBoard[move[0]][move[1]] = newBoard[row][col];
-                            newBoard[row][col] = '';
-                            
-                            // Only add the move if it doesn't leave the king in check
-                            if (!isInCheck(newBoard, color)) {
-                                moves.push({from: [row, col], to: move});
-                            }
-                        });
-                    }
-                }
-            }
-            return moves;
-        };
-        
-        const makeAIMove = (board) => {
-            const legalMoves = getAllLegalMoves(board, 'black');
-            if (legalMoves.length === 0) return board; // No legal moves, game over
-
-            const randomMove = legalMoves[Math.floor(Math.random() * legalMoves.length)];
-            const newBoard = board.map(row => [...row]);
-            const [fromRow, fromCol] = randomMove.from;
-            const [toRow, toCol] = randomMove.to;
-
-            newBoard[toRow][toCol] = newBoard[fromRow][fromCol];
-            newBoard[fromRow][fromCol] = '';
-
-            return newBoard;
-        };
-
-        const getLegalMoves = (piece, row, col, board) => {
-            const legalMoves = [];
-            const isWhite = isWhitePiece(piece);
-
-            for (let i = 0; i < 8; i++) {
-                for (let j = 0; j < 8; j++) {
-                    const targetPiece = board[i][j];
-                    
-                    // Check if the destination square is occupied by a piece of the same color
-                    if (targetPiece && isWhite === isWhitePiece(targetPiece)) {
-                        continue;
-                    }
-
-                    let isLegalMove = false;
-
+    const isSquareUnderAttack = (row: number, col: number, board: Board, attackingColor: Player): boolean => {
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                const piece = board[i][j];
+                if (piece && (attackingColor === 'white' ? isWhitePiece(piece) : isBlackPiece(piece))) {
+                    let isAttacking = false;
                     switch(piece) {
                         case '♙':
                         case '♟':
-                            isLegalMove = isValidPawnMove(row, col, i, j, piece, board);
+                            const direction = attackingColor === 'white' ? -1 : 1;
+                            isAttacking = (Math.abs(j - col) === 1 && i + direction === row);
                             break;
                         case '♘':
                         case '♞':
-                            isLegalMove = isValidKnightMove(row, col, i, j);
+                            isAttacking = isValidKnightMove(i, j, row, col);
                             break;
                         case '♗':
                         case '♝':
-                            isLegalMove = isValidBishopMove(row, col, i, j, board);
+                            isAttacking = isValidBishopMove(i, j, row, col, board);
                             break;
                         case '♖':
                         case '♜':
-                            isLegalMove = isValidRookMove(row, col, i, j, board);
+                            isAttacking = isValidRookMove(i, j, row, col, board);
                             break;
                         case '♕':
                         case '♛':
-                            isLegalMove = isValidQueenMove(row, col, i, j, board);
+                            isAttacking = isValidQueenMove(i, j, row, col, board);
                             break;
                         case '♔':
                         case '♚':
-                            isLegalMove = isValidKingMove(row, col, i, j, board, isWhite ? 'white' : 'black');
+                            isAttacking = isValidKingMove(i, j, row, col, board, attackingColor);
                             break;
                     }
-
-                    if (isLegalMove) {
-                        legalMoves.push([i, j]);
-                    }
+                    if (isAttacking) return true;
                 }
             }
-            return legalMoves;
-        };
+        }
+        return false;
+    };
 
-        // ... (rest of the Chessboard component remains the same)
-        
-        const ChessSquare = ({ piece, isLight, isSelected, isLegalMove, onClick }) => (
-            <div
-                onClick={onClick}
-                style={{
-                    width: '50px',
-                    height: '50px',
-                    backgroundColor: isSelected ? '#7bccf7' : isLegalMove ? '#90EE90' : (isLight ? '#f0d9b5' : '#b58863'),
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                    fontSize: '2rem',
-                }}
-            >
-                {piece}
-            </div>
-        );
+    const isValidKingMove = (startRow: number, startCol: number, endRow: number, endCol: number, board: Board, kingColor: Player): boolean => {
+        const rowDiff = Math.abs(endRow - startRow);
+        const colDiff = Math.abs(endCol - startCol);
 
-        const isInCheck = (board, color) => {
-            // Find the king
-            let kingRow, kingCol;
-            const kingSymbol = color === 'white' ? '♔' : '♚';
-            for (let i = 0; i < 8; i++) {
-                for (let j = 0; j < 8; j++) {
-                    if (board[i][j] === kingSymbol) {
-                        kingRow = i;
-                        kingCol = j;
+        const isBasicMoveValid = (rowDiff <= 1 && colDiff <= 1) && (rowDiff + colDiff > 0);
+
+        if (!isBasicMoveValid) return false;
+
+        const oppositeColor = kingColor === 'white' ? 'black' : 'white';
+        return !isSquareUnderAttack(endRow, endCol, board, oppositeColor);
+    };
+
+    const getAllLegalMoves = (board: Board, color: Player): Move[] => {
+        const moves: Move[] = [];
+        for (let row = 0; row < 8; row++) {
+            for (let col = 0; col < 8; col++) {
+                const piece = board[row][col];
+                if ((color === 'white' && isWhitePiece(piece)) || (color === 'black' && isBlackPiece(piece))) {
+                    const pieceMoves = getLegalMoves(piece, row, col, board);
+                    pieceMoves.forEach(move => {
+                        const newBoard = board.map(r => [...r]);
+                        newBoard[move[0]][move[1]] = newBoard[row][col];
+                        newBoard[row][col] = '';
+
+                        if (!isInCheck(newBoard, color)) {
+                            moves.push({from: [row, col], to: move});
+                        }
+                    });
+                }
+            }
+        }
+        return moves;
+    };
+
+    const getLegalMoves = (piece: Piece, row: number, col: number, board: Board): Position[] => {
+        const legalMoves: Position[] = [];
+        const isWhite = isWhitePiece(piece);
+
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                const targetPiece = board[i][j];
+
+                if (targetPiece && isWhite === isWhitePiece(targetPiece)) {
+                    continue;
+                }
+
+                let isLegalMove = false;
+
+                switch(piece) {
+                    case '♙':
+                    case '♟':
+                        isLegalMove = isValidPawnMove(row, col, i, j, piece, board);
                         break;
-                    }
+                    case '♘':
+                    case '♞':
+                        isLegalMove = isValidKnightMove(row, col, i, j);
+                        break;
+                    case '♗':
+                    case '♝':
+                        isLegalMove = isValidBishopMove(row, col, i, j, board);
+                        break;
+                    case '♖':
+                    case '♜':
+                        isLegalMove = isValidRookMove(row, col, i, j, board);
+                        break;
+                    case '♕':
+                    case '♛':
+                        isLegalMove = isValidQueenMove(row, col, i, j, board);
+                        break;
+                    case '♔':
+                    case '♚':
+                        isLegalMove = isValidKingMove(row, col, i, j, board, isWhite ? 'white' : 'black');
+                        break;
                 }
-                if (kingRow !== undefined) break;
-            }
 
-            // Check if the king is under attack
-            const oppositeColor = color === 'white' ? 'black' : 'white';
-            return isSquareUnderAttack(kingRow, kingCol, board, oppositeColor);
-        };
-
-        const isCheckmate = (board, color) => {
-            if (!isInCheck(board, color)) return false;
-
-            // Check if any move can get the king out of check
-            const allMoves = getAllLegalMoves(board, color);
-            for (const move of allMoves) {
-                const newBoard = board.map(row => [...row]);
-                const [fromRow, fromCol] = move.from;
-                const [toRow, toCol] = move.to;
-                newBoard[toRow][toCol] = newBoard[fromRow][fromCol];
-                newBoard[fromRow][fromCol] = '';
-
-                if (!isInCheck(newBoard, color)) {
-                    return false; // Found a move that escapes check
+                if (isLegalMove) {
+                    legalMoves.push([i, j]);
                 }
             }
+        }
+        return legalMoves;
+    };
 
-            return true; // No moves escape check, it's checkmate
-        };
+    const isInCheck = (board: Board, color: Player): boolean => {
+        let kingRow: number | undefined, kingCol: number | undefined;
+        const kingSymbol = color === 'white' ? '♔' : '♚';
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                if (board[i][j] === kingSymbol) {
+                    kingRow = i;
+                    kingCol = j;
+                    break;
+                }
+            }
+            if (kingRow !== undefined) break;
+        }
 
-        const isStalemate = (board, color) => {
-            if (isInCheck(board, color)) return false;
+        if (kingRow === undefined || kingCol === undefined) {
+            throw new Error("King not found on the board");
+        }
 
-            // Check if there are any legal moves
-            const allMoves = getAllLegalMoves(board, color);
-            return allMoves.length === 0;
-        };
+        const oppositeColor = color === 'white' ? 'black' : 'white';
+        return isSquareUnderAttack(kingRow, kingCol, board, oppositeColor);
+    };
 
-        const Chessboard = () => {
-            const [board, setBoard] = React.useState(INITIAL_BOARD);
-            const [selectedPiece, setSelectedPiece] = React.useState(null);
-            const [legalMoves, setLegalMoves] = React.useState([]);
-            const [currentPlayer, setCurrentPlayer] = React.useState('white');
-            const [status, setStatus] = React.useState("White's turn to move");
-            const [gameOver, setGameOver] = React.useState(false);
-            const isAIMoving = React.useRef(false);
+    const isCheckmate = (board: Board, color: Player): boolean => {
+        if (!isInCheck(board, color)) return false;
 
-            const checkGameState = React.useCallback((board, player) => {
+        const allMoves = getAllLegalMoves(board, color);
+        for (const move of allMoves) {
+            const newBoard = board.map(row => [...row]);
+            const [fromRow, fromCol] = move.from;
+            const [toRow, toCol] = move.to;
+            newBoard[toRow][toCol] = newBoard[fromRow][fromCol];
+            newBoard[fromRow][fromCol] = '';
+
+            if (!isInCheck(newBoard, color)) {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    const isStalemate = (board: Board, color: Player): boolean => {
+        if (isInCheck(board, color)) return false;
+
+        const allMoves = getAllLegalMoves(board, color);
+        return allMoves.length === 0;
+    };
+
+    const ChessSquare: React.FC<ChessSquareProps> = ({ piece, isLight, isSelected, isLegalMove, onClick }) => (
+        <div
+            onClick={onClick}
+            style={{
+                width: '50px',
+                height: '50px',
+                backgroundColor: isSelected ? '#7bccf7' : isLegalMove ? '#90EE90' : (isLight ? '#f0d9b5' : '#b58863'),
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                cursor: 'pointer',
+                fontSize: '2rem',
+            }}
+        >
+            {piece}
+        </div>
+    );
+
+    const Chessboard: React.FC = () => {
+        const [board, setBoard] = React.useState<Board>(INITIAL_BOARD);
+        const [selectedPiece, setSelectedPiece] = React.useState<SelectedPiece | null>(null);
+        const [legalMoves, setLegalMoves] = React.useState<Position[]>([]);
+        const [currentPlayer, setCurrentPlayer] = React.useState<Player>('white');
+        const [status, setStatus] = React.useState<string>("White's turn to move");
+        const [gameOver, setGameOver] = React.useState<boolean>(false);
+        const isAIMoving = React.useRef<boolean>(false);
+
+    const checkGameState = React.useCallback((board: Board, player: Player) => {
                 const oppositePlayer = player === 'white' ? 'black' : 'white';
                 if (isCheckmate(board, player)) {
                     setStatus(`Checkmate! ${oppositePlayer.charAt(0).toUpperCase() + oppositePlayer.slice(1)} wins!`);
@@ -408,7 +391,7 @@
                 }
             }, [currentPlayer, makeAIMove, gameOver]);
 
-            const handleSquareClick = (row, col) => {
+            const handleSquareClick = (row: number, col: number) => {
                 if (currentPlayer !== 'white' || gameOver) return;
 
                 if (selectedPiece) {
@@ -462,7 +445,7 @@
                                     key={`${rowIndex}-${colIndex}`}
                                     piece={piece}
                                     isLight={(rowIndex + colIndex) % 2 === 0}
-                                    isSelected={selectedPiece && selectedPiece.row === rowIndex && selectedPiece.col === colIndex}
+                                    isSelected={selectedPiece !== null && selectedPiece.row === rowIndex && selectedPiece.col === colIndex}
                                     isLegalMove={legalMoves.some(move => move[0] === rowIndex && move[1] === colIndex)}
                                     onClick={() => handleSquareClick(rowIndex, colIndex)}
                                 />
@@ -475,17 +458,28 @@
                 </div>
             );
         };
-        
-        function App() {
+
+        const App: React.FC = () => {
             return (
                 <div className="App">
                     <h1>Chess Game</h1>
                     <Chessboard />
                 </div>
             );
-        }
+        };
 
         ReactDOM.render(<App />, document.getElementById('root'));
-    </script>
+</script>
+
+<script>
+    // Compile and run the TypeScript code
+    var tsCode = document.querySelector('script[type="text/typescript"]').textContent;
+    var jsCode = ts.transpile(tsCode, {
+        jsx: ts.JsxEmit.React,
+        module: ts.ModuleKind.ES2015
+    });
+    var babelCode = Babel.transform(jsCode, { presets: ['react'] }).code;
+    eval(babelCode);
+</script>
 </body>
 </html>
