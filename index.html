@@ -399,37 +399,46 @@
             }
         }, []);
 
-        const makeAIMove = React.useCallback(() => {
-                if (isAIMoving.current || gameOver) return;
-                isAIMoving.current = true;
+const makeAIMove = React.useCallback(() => {
+        if (isAIMoving.current || gameOver) return;
+        isAIMoving.current = true;
 
-                try {
-                    const legalMoves = getAllLegalMoves(board, 'black');
-                    if (legalMoves.length === 0) {
-                        checkGameState(board, 'black');
-                        isAIMoving.current = false;
-                        return;
-                    }
+        try {
+            const legalMoves = getAllLegalMoves(board, 'black');
+            if (legalMoves.length === 0) {
+                checkGameState(board, 'black');
+                isAIMoving.current = false;
+                return;
+            }
 
-                    const randomMove = legalMoves[Math.floor(Math.random() * legalMoves.length)];
-                    const newBoard = board.map(row => [...row]);
-                    const [fromRow, fromCol] = randomMove.from;
-                    const [toRow, toCol] = randomMove.to;
+            const randomMove = legalMoves[Math.floor(Math.random() * legalMoves.length)];
+            const newBoard = board.map(row => [...row]);
+            const [fromRow, fromCol] = randomMove.from;
+            const [toRow, toCol] = randomMove.to;
 
-                    newBoard[toRow][toCol] = newBoard[fromRow][fromCol];
-                    newBoard[fromRow][fromCol] = '';
+            let movedPiece = newBoard[fromRow][fromCol];
+            newBoard[toRow][toCol] = movedPiece;
+            newBoard[fromRow][fromCol] = '';
 
-                    setBoard(newBoard);
-                    setCurrentPlayer('white');
-                    checkGameState(newBoard, 'white');
-                } catch (error) {
-                    console.error("Error during AI move:", error);
-                    setStatus("An error occurred during Black's move");
-                } finally {
-                    isAIMoving.current = false;
-                }
-            }, [board, checkGameState, gameOver]);
+            // Check for pawn promotion
+            if (movedPiece === '♟' && toRow === 7) {
+                // Choose promotion piece (90% queen, 10% random other piece)
+                const promotionPieces = ['♛', '♜', '♝', '♞'];
+                const promotedPiece = Math.random() < 0.9 ? '♛' : promotionPieces[Math.floor(Math.random() * promotionPieces.length)];
+                newBoard[toRow][toCol] = promotedPiece;
+            }
 
+            setBoard(newBoard);
+            setCurrentPlayer('white');
+            checkGameState(newBoard, 'white');
+        } catch (error) {
+            console.error("Error during AI move:", error);
+            setStatus("An error occurred during Black's move");
+        } finally {
+            isAIMoving.current = false;
+        }
+    }, [board, checkGameState, gameOver]);
+    
         React.useEffect(() => {
             if (currentPlayer === 'black' && !gameOver && !showPromotion) {
                 const timeoutId = setTimeout(() => {
