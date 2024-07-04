@@ -225,13 +225,13 @@
         return !isSquareUnderAttack(endRow, endCol, board, oppositeColor);
     };
 
-    const getAllLegalMoves = (board: Board, color: Player): Move[] => {
+    const getAllLegalMoves = (board: Board, color: Player, enPassantTarget: Position | null): Move[] => {
         const moves: Move[] = [];
         for (let row = 0; row < 8; row++) {
             for (let col = 0; col < 8; col++) {
                 const piece = board[row][col];
                 if ((color === 'white' && isWhitePiece(piece)) || (color === 'black' && isBlackPiece(piece))) {
-                    const pieceMoves = getLegalMoves(piece, row, col, board);
+                    const pieceMoves = getLegalMoves(piece, row, col, board, enPassantTarget);
                     pieceMoves.forEach(move => {
                         const newBoard = board.map(r => [...r]);
                         newBoard[move[0]][move[1]] = newBoard[row][col];
@@ -264,7 +264,7 @@
                 switch(piece) {
                     case '♙':
                     case '♟':
-                        isLegalMove = isValidPawnMove(row, col, i, j, piece, board);
+                        isLegalMove = isValidPawnMove(row, col, i, j, piece, board, enPassantTarget);
                         break;
                     case '♘':
                     case '♞':
@@ -326,10 +326,10 @@
         return isSquareUnderAttack(kingRow, kingCol, board, oppositeColor);
     };
 
-    const isCheckmate = (board: Board, color: Player): boolean => {
+    const isCheckmate = (board: Board, color: Player, enPassantTarget: Position | null): boolean => {
         if (!isInCheck(board, color)) return false;
 
-        const allMoves = getAllLegalMoves(board, color);
+        const allMoves = getAllLegalMoves(board, color, enPassantTarget);
         for (const move of allMoves) {
             const newBoard = board.map(row => [...row]);
             const [fromRow, fromCol] = move.from;
@@ -345,10 +345,10 @@
         return true;
     };
 
-    const isStalemate = (board: Board, color: Player): boolean => {
+    const isStalemate = (board: Board, color: Player, enPassantTarget: Position | null): boolean => {
         if (isInCheck(board, color)) return false;
 
-        const allMoves = getAllLegalMoves(board, color);
+        const allMoves = getAllLegalMoves(board, color, enPassantTarget);
         return allMoves.length === 0;
     };
 
@@ -418,7 +418,7 @@ const makeAIMove = React.useCallback(() => {
         isAIMoving.current = true;
 
         try {
-            const legalMoves = getAllLegalMoves(board, 'black');
+            const legalMoves = getAllLegalMoves(board, 'black', enPassantTarget);
             if (legalMoves.length === 0) {
                 checkGameState(board, 'black');
                 isAIMoving.current = false;
@@ -460,7 +460,7 @@ const makeAIMove = React.useCallback(() => {
                 }, 500);
                 return () => clearTimeout(timeoutId);
             }
-        }, [currentPlayer, makeAIMove, gameOver, showPromotion]);
+        }, [currentPlayer, makeAIMove, gameOver, showPromotion, enPassantTarget]);
 
         const handlePromotion = (promotedPiece: Piece) => {
             if (promotionPosition) {
@@ -519,7 +519,7 @@ const makeAIMove = React.useCallback(() => {
                 const piece = board[row][col];
                 if (isWhitePiece(piece)) {
                     setSelectedPiece({ piece, row, col });
-                    setLegalMoves(getLegalMoves(piece, row, col, board).filter(move => {
+                    setLegalMoves(getLegalMoves(piece, row, col, board, enPassantTarget).filter(move => {
                         const newBoard = board.map(r => [...r]);
                         newBoard[move[0]][move[1]] = newBoard[row][col];
                         newBoard[row][col] = '';
