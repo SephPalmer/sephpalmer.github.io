@@ -91,7 +91,7 @@
     const isWhitePiece = (piece: Piece): boolean => '♔♕♖♗♘♙'.includes(piece);
     const isBlackPiece = (piece: Piece): boolean => '♚♛♜♝♞♟'.includes(piece);
 
-    const isValidPawnMove = (startRow: number, startCol: number, endRow: number, endCol: number, piece: Piece, board: Board): boolean => {
+    const isValidPawnMove = (startRow: number, startCol: number, endRow: number, endCol: number, piece: Piece, board: Board, enPassantTarget: Position | null): boolean => {
         const isWhitePawn = piece === '♙';
         const direction = isWhitePawn ? -1 : 1;
         const startingRow = isWhitePawn ? 6 : 1;
@@ -109,6 +109,11 @@
             const targetPiece = board[endRow][endCol];
             return !!targetPiece && isWhitePawn !== isWhitePiece(targetPiece);
         }
+
+        // En passant capture
+    if (enPassantTarget && Math.abs(startCol - endCol) === 1 && endRow === startRow + direction) {
+        return endRow === enPassantTarget[0] && endCol === enPassantTarget[1];
+    }
 
         return false;
     };
@@ -242,7 +247,7 @@
         return moves;
     };
 
-    const getLegalMoves = (piece: Piece, row: number, col: number, board: Board): Position[] => {
+    const getLegalMoves = (piece: Piece, row: number, col: number, board: Board, enPassantTarget: Position | null): Position[] => {
         const legalMoves: Position[] = [];
         const isWhite = isWhitePiece(piece);
 
@@ -288,6 +293,14 @@
                 }
             }
         }
+
+        if ((piece === '♙' || piece === '♟') && enPassantTarget) {
+        const direction = piece === '♙' ? -1 : 1;
+        if (row + direction === enPassantTarget[0] && Math.abs(col - enPassantTarget[1]) === 1) {
+            legalMoves.push(enPassantTarget);
+        }
+    }
+
         return legalMoves;
     };
 
@@ -382,6 +395,7 @@
         const [gameOver, setGameOver] = React.useState<boolean>(false);
         const [showPromotion, setShowPromotion] = React.useState<boolean>(false);
         const [promotionPosition, setPromotionPosition] = React.useState<Position | null>(null);
+        const [enPassantTarget, setEnPassantTarget] = React.useState<Position | null>(null);
         const isAIMoving = React.useRef<boolean>(false);
 
         const checkGameState = React.useCallback((board: Board, player: Player) => {
@@ -473,6 +487,11 @@ const makeAIMove = React.useCallback(() => {
                     newBoard[startRow][startCol] = '';
                     newBoard[row][col] = piece;
 
+                        // Handle en passant capture
+                        if (piece === '♙' && enPassantTarget && row === enPassantTarget[0] && col === enPassantTarget[1]) {
+                        newBoard[row + 1][col] = ''; // Remove the captured pawn
+                        }
+
                     // Check for pawn promotion
                     if (piece === '♙' && row === 0) {
                         setShowPromotion(true);
@@ -480,6 +499,13 @@ const makeAIMove = React.useCallback(() => {
                     } else {
                         setCurrentPlayer('black');
                         checkGameState(newBoard, 'black');
+                    }
+
+                    // In handleSquareClick, after executing a move:
+                    if (piece === '♙' && Math.abs(startRow - row) === 2) {
+                    setEnPassantTarget([row, col]);
+                    } else {
+                    setEnPassantTarget(null);
                     }
 
                     setBoard(newBoard);
