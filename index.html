@@ -336,20 +336,13 @@
         return false;
     };
 
-    const getAllLegalMoves = (board: Board, color: Player, enPassantTarget: Position | null): Move[] => {
+    const getAllLegalMoves = (board: Board, color: Player, enPassantTarget: Position | null, movedPiecesState: MovedPieces): Move[] => {
         const moves: Move[] = [];
         for (let row = 0; row < 8; row++) {
             for (let col = 0; col < 8; col++) {
                 const piece = board[row][col];
                 if ((color === 'white' && isWhitePiece(piece)) || (color === 'black' && isBlackPiece(piece))) {
-                    const pieceMoves = getLegalMoves(piece, row, col, board, enPassantTarget, {
-                        whiteKingMoved: true,
-                        whiteKingRookMoved: true,
-                        whiteQueenRookMoved: true,
-                        blackKingMoved: true,
-                        blackKingRookMoved: true,
-                        blackQueenRookMoved: true,
-                    });
+                    const pieceMoves = getLegalMoves(piece, row, col, board, enPassantTarget, movedPiecesState);
                     pieceMoves.forEach(move => {
                         const newBoard = board.map(r => [...r]);
                         newBoard[move[0]][move[1]] = newBoard[row][col];
@@ -452,10 +445,10 @@
         return isSquareUnderAttack(kingRow, kingCol, board, oppositeColor);
     };
 
-    const isCheckmate = (board: Board, color: Player, enPassantTarget: Position | null): boolean => {
+    const isCheckmate = (board: Board, color: Player, enPassantTarget: Position | null, movedPiecesState: MovedPieces): boolean => {
         if (!isInCheck(board, color)) return false;
 
-        const allMoves = getAllLegalMoves(board, color, enPassantTarget);
+        const allMoves = getAllLegalMoves(board, color, enPassantTarget, movedPiecesState);
         for (const move of allMoves) {
             const newBoard = board.map(row => [...row]);
             const [fromRow, fromCol] = move.from;
@@ -471,10 +464,10 @@
         return true;
     };
 
-    const isStalemate = (board: Board, color: Player, enPassantTarget: Position | null): boolean => {
+    const isStalemate = (board: Board, color: Player, enPassantTarget: Position | null, movedPiecesState: MovedPieces): boolean => {
         if (isInCheck(board, color)) return false;
 
-        const allMoves = getAllLegalMoves(board, color, enPassantTarget);
+        const allMoves = getAllLegalMoves(board, color, enPassantTarget, movedPiecesState);
         return allMoves.length === 0;
     };
 
@@ -535,10 +528,10 @@
 
         const checkGameState = React.useCallback((board: Board, player: Player) => {
             const oppositePlayer = player === 'white' ? 'black' : 'white';
-            if (isCheckmate(board, player, enPassantTarget)) {
+            if (isCheckmate(board, player, enPassantTarget, movedPieces)) {
                 setStatus(`Checkmate! ${oppositePlayer.charAt(0).toUpperCase() + oppositePlayer.slice(1)} wins!`);
                 setGameOver(true);
-            } else if (isStalemate(board, player, enPassantTarget)) {
+            } else if (isStalemate(board, player, enPassantTarget, movedPieces)) {
                 setStatus("Stalemate! The game is a draw.");
                 setGameOver(true);
             } else if (isInCheck(board, player)) {
@@ -546,14 +539,14 @@
             } else {
                 setStatus(`${player.charAt(0).toUpperCase() + player.slice(1)}'s turn to move`);
             }
-        }, [enPassantTarget]);
+        }, [enPassantTarget, movedPieces]);
 
         const makeAIMove = React.useCallback(() => {
             if (isAIMoving.current || gameOver) return;
             isAIMoving.current = true;
 
             try {
-                const legalMoves = getAllLegalMoves(board, 'black', enPassantTarget);
+                const legalMoves = getAllLegalMoves(board, 'black', enPassantTarget, movedPieces);
                 if (legalMoves.length === 0) {
                     checkGameState(board, 'black');
                     isAIMoving.current = false;
@@ -568,6 +561,40 @@
                 let movedPiece = newBoard[fromRow][fromCol];
                 newBoard[toRow][toCol] = movedPiece;
                 newBoard[fromRow][fromCol] = '';
+
+                // Handle en passant capture
+                if (movedPiece === '♟' && enPassantTarget && toRow === enPassantTarget[0] && toCol === enPassantTarget[1]) {
+                    newBoard[toRow - 1][toCol] = ''; // Remove captured white pawn (above the target square)
+                }
+
+                // Handle castling rook movement
+                if (movedPiece === '♚' && Math.abs(fromCol - toCol) === 2) {
+                    if (toCol === 6) { // King-side castling
+                        newBoard[0][5] = newBoard[0][7];
+                        newBoard[0][7] = '';
+                    } else if (toCol === 2) { // Queen-side castling
+                        newBoard[0][3] = newBoard[0][0];
+                        newBoard[0][0] = '';
+                    }
+                }
+
+                // Update moved pieces state
+                if (movedPiece === '♚') {
+                    setMovedPieces(prev => ({ ...prev, blackKingMoved: true }));
+                } else if (movedPiece === '♜') {
+                    if (fromRow === 0 && fromCol === 7) {
+                        setMovedPieces(prev => ({ ...prev, blackKingRookMoved: true }));
+                    } else if (fromRow === 0 && fromCol === 0) {
+                        setMovedPieces(prev => ({ ...prev, blackQueenRookMoved: true }));
+                    }
+                }
+
+                // Update en passant target
+                if (movedPiece === '♟' && Math.abs(fromRow - toRow) === 2) {
+                    setEnPassantTarget([toRow - 1, toCol]);
+                } else {
+                    setEnPassantTarget(null);
+                }
 
                 // Check for pawn promotion
                 if (movedPiece === '♟' && toRow === 7) {
@@ -586,7 +613,7 @@
             } finally {
                 isAIMoving.current = false;
             }
-        }, [board, checkGameState, gameOver, enPassantTarget]);
+        }, [board, checkGameState, gameOver, enPassantTarget, movedPieces]);
 
         React.useEffect(() => {
             if (currentPlayer === 'black' && !gameOver && !showPromotion) {
@@ -626,13 +653,23 @@
                     // Handle castling move
                     if (piece === '♔' && Math.abs(startCol - col) === 2) {
                         if (col === 6) { // King-side castling
-                            newBoard[startRow][5] = newBoard[startRow][7];
-                            newBoard[startRow][7] = '';
+                            newBoard[7][5] = newBoard[7][7];
+                            newBoard[7][7] = '';
                             setMovedPieces(prev => ({ ...prev, whiteKingRookMoved: true }));
                         } else if (col === 2) { // Queen-side castling
-                            newBoard[startRow][3] = newBoard[startRow][0];
-                            newBoard[startRow][0] = '';
+                            newBoard[7][3] = newBoard[7][0];
+                            newBoard[7][0] = '';
                             setMovedPieces(prev => ({ ...prev, whiteQueenRookMoved: true }));
+                        }
+                    } else if (piece === '♚' && Math.abs(startCol - col) === 2) {
+                        if (col === 6) { // King-side castling
+                            newBoard[0][5] = newBoard[0][7];
+                            newBoard[0][7] = '';
+                            setMovedPieces(prev => ({ ...prev, blackKingRookMoved: true }));
+                        } else if (col === 2) { // Queen-side castling
+                            newBoard[0][3] = newBoard[0][0];
+                            newBoard[0][0] = '';
+                            setMovedPieces(prev => ({ ...prev, blackQueenRookMoved: true }));
                         }
                     }
 
@@ -645,11 +682,20 @@
                         } else if (startRow === 7 && startCol === 0) {
                             setMovedPieces(prev => ({ ...prev, whiteQueenRookMoved: true }));
                         }
+                    } else if (piece === '♚') {
+                        setMovedPieces(prev => ({ ...prev, blackKingMoved: true }));
+                    } else if (piece === '♜') {
+                        if (startRow === 0 && startCol === 7) {
+                            setMovedPieces(prev => ({ ...prev, blackKingRookMoved: true }));
+                        } else if (startRow === 0 && startCol === 0) {
+                            setMovedPieces(prev => ({ ...prev, blackQueenRookMoved: true }));
+                        }
                     }
 
                     // Handle en passant capture
-                    if (piece === '♙' && enPassantTarget && row === enPassantTarget[0] && col === enPassantTarget[1]) {
-                        newBoard[row + 1][col] = ''; // Remove the captured pawn
+                    if ((piece === '♙' || piece === '♟') && enPassantTarget && row === enPassantTarget[0] && col === enPassantTarget[1]) {
+                        const direction = piece === '♙' ? 1 : -1;
+                        newBoard[row + direction][col] = ''; // Remove the captured pawn
                     }
 
                     // Check for pawn promotion
