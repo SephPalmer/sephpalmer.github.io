@@ -6,30 +6,233 @@
     <title>Painting &amp; Drawing — Joe Palmer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
     <style>
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
+        /* --- Gallery Page Overrides --- */
+
+        .project-hero {
+            padding-bottom: 1rem;
         }
-        .gallery-grid img {
-            width: 100%;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            display: block;
+
+        .project-hero p {
+            max-width: 520px;
         }
-        .project-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .project-content p {
+
+        .gallery-intro {
+            max-width: 560px;
             color: var(--text-secondary);
-            line-height: 1.7;
-            margin-bottom: 1.5rem;
-            text-align: center;
+            line-height: 1.8;
+            font-size: 1.05rem;
+            margin-bottom: 4rem;
+            padding: 0 2rem;
+        }
+
+        /* Masonry via CSS columns */
+        .gallery-masonry {
+            column-count: 3;
+            column-gap: 1.25rem;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .gallery-item {
+            break-inside: avoid;
+            margin-bottom: 1.25rem;
+            position: relative;
+            overflow: hidden;
+            border-radius: 6px;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(24px);
+            animation: galleryReveal 0.7s ease forwards;
+        }
+
+        .gallery-item:nth-child(1) { animation-delay: 0.05s; }
+        .gallery-item:nth-child(2) { animation-delay: 0.15s; }
+        .gallery-item:nth-child(3) { animation-delay: 0.25s; }
+        .gallery-item:nth-child(4) { animation-delay: 0.35s; }
+        .gallery-item:nth-child(5) { animation-delay: 0.45s; }
+        .gallery-item:nth-child(6) { animation-delay: 0.55s; }
+        .gallery-item:nth-child(7) { animation-delay: 0.65s; }
+        .gallery-item:nth-child(8) { animation-delay: 0.75s; }
+
+        @keyframes galleryReveal {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .gallery-item img {
+            width: 100%;
+            display: block;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), filter 0.6s ease;
+            filter: grayscale(0.15) brightness(0.92);
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.04);
+            filter: grayscale(0) brightness(1);
+        }
+
+        .gallery-item::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                180deg,
+                transparent 50%,
+                rgba(12, 15, 26, 0.5) 100%
+            );
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+
+        .gallery-item:hover::after {
+            opacity: 1;
+        }
+
+        .gallery-item .item-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.25rem;
+            transform: translateY(8px);
+            opacity: 0;
+            transition: opacity 0.4s ease 0.05s, transform 0.4s ease 0.05s;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .gallery-item:hover .item-caption {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .item-caption .caption-medium {
+            font-size: 0.65rem;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
+        }
+
+        .item-caption .caption-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: var(--text);
+        }
+
+        /* --- Lightbox --- */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(6, 8, 14, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+            cursor: zoom-out;
+        }
+
+        .lightbox.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .lightbox img {
+            max-width: 88vw;
+            max-height: 88vh;
+            border-radius: 4px;
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
+            transform: scale(0.92);
+            transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .lightbox.active img {
+            transform: scale(1);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            width: 40px;
+            height: 40px;
+            background: none;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 50%;
+            color: var(--text);
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.3s ease, color 0.3s ease;
+        }
+
+        .lightbox-close:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* --- Section divider --- */
+        .gallery-divider {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            max-width: var(--max-width);
+            margin: 0 auto 3rem;
+            padding: 0 2rem;
+        }
+
+        .gallery-divider span {
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent);
+            white-space: nowrap;
+        }
+
+        .gallery-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* Footer spacing */
+        .art-footer-spacer {
+            height: 5rem;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 1024px) {
+            .gallery-masonry {
+                column-count: 2;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .gallery-masonry {
+                column-count: 1;
+                max-width: 480px;
+            }
+            .gallery-intro {
+                padding: 0 1.25rem;
+            }
+            .gallery-divider {
+                padding: 0 1.25rem;
+            }
         }
     </style>
 </head>
@@ -55,28 +258,89 @@
     <div class="container">
         <a href="../index.html#personal" class="back-link">&larr; Back to Projects</a>
         <h1>Painting &amp; Drawing</h1>
-        <p>A selection of digital paintings and ink drawings — portraits, figure studies, and character sketches.</p>
+        <p>Digital portraits, ink drawings, and character studies — a selection of personal work across mediums.</p>
     </div>
 </section>
 
-<!-- Project Content -->
+<!-- Gallery -->
 <section class="project-embed">
-    <div class="container">
-        <div class="project-content">
-            <p>Drawing and painting have always been central to my work, from early career illustration through to AAA game art. These pieces are a mix of digital portrait studies painted in Procreate and traditional ink sketches from the sketchbook.</p>
-            <div class="gallery-grid">
-                <img src="images/IMG_0174.png" alt="Digital portrait — woman with auburn hair">
-                <img src="images/IMG_0246.png" alt="Digital portrait — woman with afro puffs">
-                <img src="images/7EDC7AF8-5813-4557-847A-79C3D8455A2A.png" alt="Mixed-media digital portrait with red tones">
-                <img src="images/F1D96C38-B94C-421E-8AB9-3D6F6C303FE0.png" alt="Monochrome digital portrait — young man">
-                <img src="images/IMG_0021.png" alt="Ink drawing of a bear">
-                <img src="images/IMG_0069.png" alt="Ink sketch of a sleeping cat">
-                <img src="images/IMG_0168.png" alt="Ink figure study">
-                <img src="images/A19235CD-0205-4D01-8774-C4A71C48B49C.png" alt="Ink character drawing">
+    <p class="gallery-intro">Drawing and painting have always been central to my work, from early career illustration through to AAA game art. These pieces are a mix of digital portrait studies and traditional ink sketches from the sketchbook.</p>
+
+    <div class="gallery-divider"><span>Digital</span></div>
+
+    <div class="gallery-masonry">
+        <div class="gallery-item" onclick="openLightbox(this)">
+            <img src="images/IMG_0174.png" alt="Digital portrait — woman with auburn hair" loading="lazy">
+            <div class="item-caption">
+                <div class="caption-medium">Digital Painting</div>
+                <div class="caption-title">Portrait Study</div>
+            </div>
+        </div>
+        <div class="gallery-item" onclick="openLightbox(this)">
+            <img src="images/7EDC7AF8-5813-4557-847A-79C3D8455A2A.png" alt="Mixed-media digital portrait with red tones" loading="lazy">
+            <div class="item-caption">
+                <div class="caption-medium">Mixed Media</div>
+                <div class="caption-title">Composition in Red</div>
+            </div>
+        </div>
+        <div class="gallery-item" onclick="openLightbox(this)">
+            <img src="images/IMG_0246.png" alt="Digital portrait — woman with afro puffs" loading="lazy">
+            <div class="item-caption">
+                <div class="caption-medium">Digital Painting</div>
+                <div class="caption-title">Portrait Study</div>
+            </div>
+        </div>
+        <div class="gallery-item" onclick="openLightbox(this)">
+            <img src="images/F1D96C38-B94C-421E-8AB9-3D6F6C303FE0.png" alt="Monochrome digital portrait — young man" loading="lazy">
+            <div class="item-caption">
+                <div class="caption-medium">Digital Painting</div>
+                <div class="caption-title">Monochrome Study</div>
             </div>
         </div>
     </div>
+
+    <div style="height: 4rem;"></div>
+    <div class="gallery-divider"><span>Ink</span></div>
+
+    <div class="gallery-masonry">
+        <div class="gallery-item" onclick="openLightbox(this)">
+            <img src="images/IMG_0021.png" alt="Ink drawing of a bear" loading="lazy">
+            <div class="item-caption">
+                <div class="caption-medium">Ink</div>
+                <div class="caption-title">Bear</div>
+            </div>
+        </div>
+        <div class="gallery-item" onclick="openLightbox(this)">
+            <img src="images/IMG_0168.png" alt="Ink figure study" loading="lazy">
+            <div class="item-caption">
+                <div class="caption-medium">Ink</div>
+                <div class="caption-title">Figure Study</div>
+            </div>
+        </div>
+        <div class="gallery-item" onclick="openLightbox(this)">
+            <img src="images/IMG_0069.png" alt="Ink sketch of a sleeping cat" loading="lazy">
+            <div class="item-caption">
+                <div class="caption-medium">Ink</div>
+                <div class="caption-title">Cat Sketch</div>
+            </div>
+        </div>
+        <div class="gallery-item" onclick="openLightbox(this)">
+            <img src="images/A19235CD-0205-4D01-8774-C4A71C48B49C.png" alt="Ink character drawing" loading="lazy">
+            <div class="item-caption">
+                <div class="caption-medium">Ink</div>
+                <div class="caption-title">Character Study</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="art-footer-spacer"></div>
 </section>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <button class="lightbox-close" aria-label="Close">&times;</button>
+    <img id="lightboxImg" src="" alt="">
+</div>
 
 <!-- Footer -->
 <footer class="footer">
@@ -99,6 +363,31 @@
     var links = document.getElementById('navLinks');
     toggle.addEventListener('click', function() {
         links.classList.toggle('open');
+    });
+
+    // Lightbox
+    var lightbox = document.getElementById('lightbox');
+    var lightboxImg = document.getElementById('lightboxImg');
+
+    function openLightbox(el) {
+        var img = el.querySelector('img');
+        lightboxImg.src = img.src;
+        lightboxImg.alt = img.alt;
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox(e) {
+        if (e.target === lightboxImg) return;
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
     });
 </script>
 </body>
