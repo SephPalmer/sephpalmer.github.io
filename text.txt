@@ -1,0 +1,83 @@
+Career Summary
+
+MakeMove, Contract Android Developer
+November 2013
+I created the Zeezee android app.
+
+Sony, Contract Technical Artist
+July 2013 – September 2013
+I created a semi-automated pipeline for Sony, converting game assets into marketing material. This involved recreating and matching in-game shaders and lighting for geometry using Mental Ray shaders.
+
+
+Gobo, Contract Architect
+October 2012 – June 2013
+At Gobo I worked as an Architect on Disney Infinity. I worked from the project’s pre-production phase until its completion. I was responsible for creating a world class gameplay experience in the Pirates of the Caribbean play set.
+
+
+EA, Freelance Artist
+June 2012 – September 2012
+I worked on Need For Speed: Most Wanted, for 4 months as a contract artist helping it master on time. I was responsible for modelling and texturing sections of terrain, and creating other environment art assets. I also created briefs for the outsource artists.
+
+
+West Pier Studio, Director of Art and Technology
+September  2011 – May 2012
+As a founding member of West Pier Studio, I was involved in all aspects of the start-up. This included working as a programmer and artist to develop Unity games and applications. I was also involved in business development and scheduling.
+
+Blackrock Studio, The Walt Disney Company
+Principal Technical Artist
+February 2009 – September 2011
+I provided technical services for internal game teams, researchers and interns as part of Blackrock’s Core Technology Group. My achievements included: integration of gamma correction and live update pipelines for the game Split Second, mentoring a graduate TA, collaborations with other Disney studios including Pixar and Disney Feature Animation. I was responsible for 
+
+Lead Artist
+June 2007- February 2009
+I was a lead environment artist for Pure(Xbox 360/PS3/PC). Responsibilities included managing a team of environment artists, lighting, terrain sculpting/texturing and creation of foliage. Also, R&D in pre-production for the terrain pipeline. Pure was nominated for a Bafta in 2009.
+
+Senior Artist
+January 2006 – June 2007
+I produced environment art, (including acting lighting lead) and vehicle art for ATV Fury 4 (PS2), also pre-production for other titles. Technical tasks included collaborating with programmers to design environment streaming.
+
+Climax Studios
+Artist
+January 2004 – January 2006
+I created environment art and lighting for ATV Fury 3(PS2).
+
+Freelance Artist and Designer
+October 2003 – January 2004
+Providing freelance design and book illustration services for an ex-Reuters start-up. My illustrations for this project went on to be included in a book published by New Riders. 
+
+Computer Artworks
+Artist
+January 2003 – October 2003
+I created environment art and animation for Alone in the Dark 5 (PS2), also some utility scripts for modelers and texture artists.
+
+Pocket Studios
+Artist
+October 2002 – January 2003
+I made character art and animation for Haunted Mansion (GBA) 
+
+Virgin Interactive
+Senior Artist
+February 2001- July 2002
+I created environment Art, VFX and lighting for Falcone: Into the Maelstrom (Xbox and PS2)
+
+LEGO
+Assistant Producer
+October 1998 – January 2001
+Five software titles released as an Assistant Producer, working with external developers to deliver games on time and to budget, with a focus on art and design direction.
+
+
+Product History
+
+Zeezee
+Disney Infinity
+Need for Speed: Most Wanted
+Coke/McDonalds Olympics Racer
+Split Second 					Pure	
+ATV Fury 4					ATV Fury 3 			
+Alone in the Dark V				Haunted Mansion			
+Falcone: Into the Maelstrom			LEGO Creator: Harry Potter     	
+LEGOLAND					LEGO Creator II: Knights Kingdom
+Stunt Rally					LEGO Racers				    Harry Potter Castle Range  		  
+
+
+
