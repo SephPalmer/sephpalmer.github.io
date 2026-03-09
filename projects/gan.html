@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAN Face Generator — Joe Palmer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .gan-image {
+            max-width: 400px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .project-content {
+            max-width: 640px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .project-content p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav scrolled" id="nav">
+    <div class="container">
+        <a href="../index.html" class="nav-logo">Joe Palmer</a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+            <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="../index.html#works">Works</a></li>
+            <li><a href="../index.html#about">About</a></li>
+            <li><a href="../index.html#contact">Contact</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Project Header -->
+<section class="project-hero">
+    <div class="container">
+        <a href="../index.html#personal" class="back-link">&larr; Back to Projects</a>
+        <h1>GAN Face Generator</h1>
+        <p>A generative adversarial network trained to produce realistic human faces from scratch.</p>
+    </div>
+</section>
+
+<!-- Project Content -->
+<section class="project-embed">
+    <div class="container">
+        <div class="project-content">
+            <img src="images/Gan_1.png" alt="GAN-generated face" class="gan-image">
+            <p style="margin-top: 2rem;">This project uses a generative adversarial network (GAN) trained on several thousand face images. The generator learns to produce realistic portraits by competing against a discriminator network that tries to distinguish real faces from generated ones.</p>
+            <p>This is still a work in progress — the results are promising but there's room to improve fidelity and consistency with further training and architectural refinements.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-bottom">
+            &copy; 2026 Joe Palmer. All rights reserved.
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Nav scroll effect
+    var nav = document.getElementById('nav');
+    window.addEventListener('scroll', function() {
+        nav.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // Mobile nav toggle
+    var toggle = document.getElementById('navToggle');
+    var links = document.getElementById('navLinks');
+    toggle.addEventListener('click', function() {
+        links.classList.toggle('open');
+    });
+</script>
+</body>
+</html>
