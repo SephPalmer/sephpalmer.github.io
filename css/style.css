@@ -31,6 +31,12 @@ body {
     color: var(--text);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+body.loaded {
+    opacity: 1;
 }
 
 a {
@@ -103,10 +109,28 @@ h1, h2, h3 {
     text-transform: uppercase;
     color: var(--text-secondary);
     transition: color 0.3s ease;
+    position: relative;
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .nav-links a:hover {
     color: var(--text);
+}
+
+.nav-links a:hover::after {
+    transform: scaleX(1);
 }
 
 /* =============================================
@@ -251,12 +275,7 @@ h1, h2, h3 {
     flex-direction: column;
     gap: 1rem;
     transition: transform 0.35s ease, box-shadow 0.35s ease, background-color 0.35s ease;
-    animation: fadeInUp 0.6s ease both;
 }
-
-.project-card:nth-child(1) { animation-delay: 0.1s; }
-.project-card:nth-child(2) { animation-delay: 0.25s; }
-.project-card:nth-child(3) { animation-delay: 0.4s; }
 
 .project-card:hover {
     transform: translateY(-6px);
@@ -274,6 +293,26 @@ h1, h2, h3 {
         transform: translateY(0);
     }
 }
+
+/* =============================================
+   Scroll Reveal System
+   ============================================= */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.projects-grid .reveal:nth-child(1) { transition-delay: 0s; }
+.projects-grid .reveal:nth-child(2) { transition-delay: 0.1s; }
+.projects-grid .reveal:nth-child(3) { transition-delay: 0.15s; }
+.projects-grid .reveal:nth-child(4) { transition-delay: 0.2s; }
 
 .card-number {
     font-family: 'Playfair Display', serif;
@@ -362,7 +401,15 @@ h1, h2, h3 {
     border-radius: 100px;
     border: 1px solid var(--border);
     color: var(--text-secondary);
-    transition: border-color 0.3s ease, color 0.3s ease;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s ease, transform 0.4s ease,
+                border-color 0.3s ease, color 0.3s ease;
+}
+
+.skill-pill.revealed {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .skill-pill:hover {
@@ -386,6 +433,12 @@ h1, h2, h3 {
     display: flex;
     justify-content: center;
     align-items: center;
+    animation: subtleRotate 20s linear infinite;
+}
+
+@keyframes subtleRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 .decoration-box::before {
@@ -522,6 +575,32 @@ h1, h2, h3 {
     background: var(--text);
     margin: 5px 0;
     transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* =============================================
+   Reduced Motion
+   ============================================= */
+@media (prefers-reduced-motion: reduce) {
+    .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    .skill-pill {
+        opacity: 1;
+        transform: none;
+        transition: border-color 0.3s ease, color 0.3s ease;
+    }
+
+    .decoration-box {
+        animation: none;
+    }
+
+    body {
+        opacity: 1;
+        transition: none;
+    }
 }
 
 /* =============================================

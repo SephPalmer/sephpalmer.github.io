@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <noscript><style>body{opacity:1!important}.reveal{opacity:1!important;transform:none!important}.skill-pill{opacity:1!important;transform:none!important}</style></noscript>
 </head>
 <body>
 
@@ -45,13 +46,13 @@
 <!-- Professional Work -->
 <section class="section" id="works">
     <div class="container">
-        <div class="section-header">
+        <div class="section-header reveal">
             <p class="section-label">Professional</p>
             <h2 class="section-title">Professional Work</h2>
         </div>
         <div class="projects-grid">
             <!-- Card 1: Disney Infinity -->
-            <div class="project-card">
+            <div class="project-card reveal">
                 <span class="card-number">01</span>
                 <span class="card-category">AAA Games</span>
                 <h3 class="card-title">Disney Infinity</h3>
@@ -63,7 +64,7 @@
             </div>
 
             <!-- Card 2: Need for Speed: Most Wanted -->
-            <div class="project-card">
+            <div class="project-card reveal">
                 <span class="card-number">02</span>
                 <span class="card-category">AAA Games</span>
                 <h3 class="card-title">Need for Speed: Most Wanted</h3>
@@ -75,7 +76,7 @@
             </div>
 
             <!-- Card 3: Split Second -->
-            <div class="project-card">
+            <div class="project-card reveal">
                 <span class="card-number">03</span>
                 <span class="card-category">Core Tech</span>
                 <h3 class="card-title">Split Second</h3>
@@ -87,7 +88,7 @@
             </div>
 
             <!-- Card 4: Pure -->
-            <div class="project-card">
+            <div class="project-card reveal">
                 <span class="card-number">04</span>
                 <span class="card-category">AAA Games</span>
                 <h3 class="card-title">Pure</h3>
@@ -105,13 +106,13 @@
 <!-- Personal Projects -->
 <section class="section" id="personal">
     <div class="container">
-        <div class="section-header">
+        <div class="section-header reveal">
             <p class="section-label">Personal</p>
             <h2 class="section-title">Personal Projects</h2>
         </div>
         <div class="projects-grid">
             <!-- Card 1: Chess -->
-            <a href="projects/chess.html" class="project-card">
+            <a href="projects/chess.html" class="project-card reveal">
                 <span class="card-number">01</span>
                 <span class="card-category">Game Dev</span>
                 <h3 class="card-title">Chess Game</h3>
@@ -125,7 +126,7 @@
             </a>
 
             <!-- Card 2: GAN Face Generator -->
-            <a href="projects/gan.html" class="project-card">
+            <a href="projects/gan.html" class="project-card reveal">
                 <span class="card-number">02</span>
                 <span class="card-category">Machine Learning</span>
                 <h3 class="card-title">GAN Face Generator</h3>
@@ -139,7 +140,7 @@
             </a>
 
             <!-- Card 3: Painting & Drawing -->
-            <a href="projects/art.html" class="project-card">
+            <a href="projects/art.html" class="project-card reveal">
                 <span class="card-number">03</span>
                 <span class="card-category">Art</span>
                 <h3 class="card-title">Painting &amp; Drawing</h3>
@@ -158,12 +159,12 @@
 <!-- About -->
 <section class="section" id="about">
     <div class="container">
-        <div class="section-header">
+        <div class="section-header reveal">
             <p class="section-label">About</p>
             <h2 class="section-title">A Bit About Me</h2>
         </div>
         <div class="about-grid">
-            <div class="about-text">
+            <div class="about-text reveal">
                 <p>I'm Joe — a developer and artist with over 25 years in the software industry. I've worked on AAA titles like Disney Infinity, Need for Speed: Most Wanted, and the BAFTA-nominated Pure, across roles spanning lead artist, principal technical artist, programmer, and designer.</p>
                 <p>These days I build interactive experiences for mobile and web and explore areas like machine learning and generative AI. I enjoy bridging the gap between art and technology — whether that's crafting game pipelines or training a GAN to generate faces.</p>
                 <div class="skills-list">
@@ -176,7 +177,7 @@
                     <span class="skill-pill">Git</span>
                 </div>
             </div>
-            <div class="about-decoration">
+            <div class="about-decoration reveal">
                 <div class="decoration-box">
                     <span class="initials">JP</span>
                 </div>
@@ -188,7 +189,7 @@
 <!-- Footer / Contact -->
 <footer class="footer" id="contact">
     <div class="container">
-        <div class="footer-content">
+        <div class="footer-content reveal">
             <div>
                 <h3 class="footer-title">Let's Connect</h3>
                 <p class="footer-subtitle">Feel free to reach out for collaborations or just a chat.</p>
@@ -205,6 +206,11 @@
 </footer>
 
 <script>
+    // Page entrance fade
+    document.addEventListener('DOMContentLoaded', () => {
+        document.body.classList.add('loaded');
+    });
+
     // Nav scroll effect
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => {
@@ -224,6 +230,38 @@
             links.classList.remove('open');
         });
     });
+
+    // Scroll reveal
+    const revealEls = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.15,
+        rootMargin: '0px 0px -50px 0px'
+    });
+    revealEls.forEach(el => revealObserver.observe(el));
+
+    // Staggered skill pills
+    const skillsContainer = document.querySelector('.skills-list');
+    if (skillsContainer) {
+        const pillObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const pills = entry.target.querySelectorAll('.skill-pill');
+                    pills.forEach((pill, i) => {
+                        setTimeout(() => pill.classList.add('revealed'), i * 80);
+                    });
+                    pillObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.3 });
+        pillObserver.observe(skillsContainer);
+    }
 </script>
 
 </body>
