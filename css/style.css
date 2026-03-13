@@ -439,12 +439,6 @@ h1, h2, h3 {
     display: flex;
     justify-content: center;
     align-items: center;
-    animation: subtleRotate 20s linear infinite;
-}
-
-@keyframes subtleRotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
 }
 
 .decoration-box::before {
@@ -597,10 +591,6 @@ h1, h2, h3 {
         opacity: 1;
         transform: none;
         transition: border-color 0.3s ease, color 0.3s ease;
-    }
-
-    .decoration-box {
-        animation: none;
     }
 
     body {
