@@ -226,6 +226,7 @@ h1, h2, h3 {
 .scroll-indicator.hidden {
     opacity: 0;
     pointer-events: none;
+    animation: none;
 }
 
 .scroll-indicator span {
