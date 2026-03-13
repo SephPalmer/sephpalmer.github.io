@@ -216,8 +216,14 @@
     const scrollIndicator = document.querySelector('.scroll-indicator');
     window.addEventListener('scroll', () => {
         nav.classList.toggle('scrolled', window.scrollY > 50);
-        if (scrollIndicator && window.scrollY > 100) {
-            scrollIndicator.classList.add('hidden');
+        if (scrollIndicator && window.scrollY > 100 && !scrollIndicator.dataset.hidden) {
+            scrollIndicator.dataset.hidden = '1';
+            scrollIndicator.style.animation = 'none';
+            scrollIndicator.style.transition = 'opacity 0.6s ease';
+            // Force reflow so the transition starts from current opacity
+            scrollIndicator.offsetHeight;
+            scrollIndicator.style.opacity = '0';
+            scrollIndicator.style.pointerEvents = 'none';
         }
     });
 
