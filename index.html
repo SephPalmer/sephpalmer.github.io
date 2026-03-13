@@ -211,10 +211,14 @@
         document.body.classList.add('loaded');
     });
 
-    // Nav scroll effect
+    // Nav scroll effect & scroll indicator fade
     const nav = document.getElementById('nav');
+    const scrollIndicator = document.querySelector('.scroll-indicator');
     window.addEventListener('scroll', () => {
         nav.classList.toggle('scrolled', window.scrollY > 50);
+        if (scrollIndicator && window.scrollY > 100) {
+            scrollIndicator.classList.add('hidden');
+        }
     });
 
     // Mobile nav toggle
