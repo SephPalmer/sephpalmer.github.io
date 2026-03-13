@@ -218,9 +218,12 @@
         nav.classList.toggle('scrolled', window.scrollY > 50);
         if (scrollIndicator && window.scrollY > 100 && !scrollIndicator.dataset.hidden) {
             scrollIndicator.dataset.hidden = '1';
+            // Capture current opacity before killing animations
+            var currentOpacity = getComputedStyle(scrollIndicator).opacity;
             scrollIndicator.style.animation = 'none';
+            scrollIndicator.style.opacity = currentOpacity;
             scrollIndicator.style.transition = 'opacity 0.6s ease';
-            // Force reflow so the transition starts from current opacity
+            // Force reflow so browser registers the starting opacity
             scrollIndicator.offsetHeight;
             scrollIndicator.style.opacity = '0';
             scrollIndicator.style.pointerEvents = 'none';
