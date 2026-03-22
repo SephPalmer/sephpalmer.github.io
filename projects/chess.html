@@ -860,6 +860,11 @@
     var babelCode = Babel.transform(jsCode, { presets: ['react'] }).code;
     eval(babelCode);
 
+    // Page entrance fade
+    document.addEventListener('DOMContentLoaded', function() {
+        document.body.classList.add('loaded');
+    });
+
     // Nav scroll effect
     var nav = document.getElementById('nav');
     window.addEventListener('scroll', function() {
